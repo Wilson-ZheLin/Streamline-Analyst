@@ -62,3 +62,7 @@ def count_Y(df, Y_name, mapping = None):
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
         plt.title(f'Distribution of {Y_name}')
         plt.show()
+
+        # value_counts = df[Y_name].value_counts()
+        # fig = px.pie(names=value_counts.index, values=value_counts.values, hole=0.5)
+        # fig.show()

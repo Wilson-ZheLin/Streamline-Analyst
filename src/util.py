@@ -26,10 +26,6 @@ def read_file(file_path):
     else:
         raise ValueError("Unsupported file format: " + file_extension)
 
-if __name__ == '__main__':
-    path = 'path/to/your/file.csv'
-    df = read_file(path)
-    print(df.head())
 def convert_to_numeric(df):
     """
     Convert all non-numeric columns in the DataFrame to integer type,

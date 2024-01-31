@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import plotly.express as px
+from model_service import fpr_and_tpr
+from sklearn.metrics import confusion_matrix
 
 
 def correlation_matrix(df):
@@ -66,3 +68,23 @@ def count_Y(df, Y_name, mapping = None):
         # value_counts = df[Y_name].value_counts()
         # fig = px.pie(names=value_counts.index, values=value_counts.values, hole=0.5)
         # fig.show()
+
+def confusion_metrix(model_name, model, X_test, Y_test):
+    Y_pred = model.predict(X_test)
+    matrix = confusion_matrix(Y_test, Y_pred)
+    sns.heatmap(matrix, annot=True, cmap='hot_r')
+    plt.title(f"Confusion Matrix for {model_name}", fontsize=14)
+    plt.show()
+
+def roc(model_name, model, X_test, Y_test):
+    fpr, tpr = fpr_and_tpr(model, X_test, Y_test)
+    plt.figure()
+    plt.style.use('ggplot')
+    plt.plot([0,1],[0,1],'k--')
+    plt.plot(fpr, tpr, label=model_name)
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    plt.title(f'ROC curve - {model_name} model')
+    plt.legend(loc='best')
+    plt.xticks(rotation=45)
+    plt.show()

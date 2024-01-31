@@ -8,7 +8,7 @@ import os
 def read_file(file_path):
 
     # Check the size of the file
-    if os.path.getsize(file_path) > 100 * 1024 * 1024:  # 100MB in bytes
+    if os.path.getsize(file_path) > 50 * 1024 * 1024:  # 50MB in bytes
         raise ValueError("Too large file")
     
     # Extract the file extension
@@ -26,26 +26,6 @@ def read_file(file_path):
     else:
         raise ValueError("Unsupported file format: " + file_extension)
 
-def convert_to_numeric(df):
-    """
-    Convert all non-numeric columns in the DataFrame to integer type,
-    and return a dictionary of mappings from original values to integers.
-    """
-    mappings = {}
-    for column in df.columns:
-
-        if df[column].dtype == 'object':
-            # Create a mapping from unique values to integers
-            unique_values = df[column].unique()
-            int_to_value_map = {i: value for i, value in enumerate(unique_values)}
-            mappings[column] = int_to_value_map
-
-            # Apply the reversed mapping to the DataFrame
-            value_to_int_map = {v: k for k, v in int_to_value_map.items()}
-            df[column] = df[column].map(value_to_int_map)
-
-    return df, mappings
-
 def select_Y(df, Y_name):
     if Y_name in df.columns:
         X = df.drop(Y_name, axis=1)
@@ -53,7 +33,6 @@ def select_Y(df, Y_name):
         return X, Y
     else:
         return -1
-    
 
 def split_data(X, Y, test_size=0.2, random_state = 42, perform_pca = False):
     """
@@ -101,3 +80,34 @@ def check_and_balance(X, Y, balance_threshold=0.5):
     else:
         print("No significant imbalance detected.")
         return X, Y
+
+def non_numeric_columns_and_head(df, num_rows=20):
+    """
+    Identify non-numeric columns in a DataFrame and return their names and head.
+
+    :param df: Pandas DataFrame to be examined.
+    :param num_rows: Number of rows to include in the head (default is 20).
+    :return: A tuple with two elements:
+             1. List of column names that are not numeric (integer or float).
+             2. DataFrame containing the head of the non-numeric columns.
+    """
+    # Identify columns that are not of numeric data type
+    non_numeric_cols = [col for col in df.columns if not pd.api.types.is_numeric_dtype(df[col])]
+    
+    # Get the head of the non-numeric columns
+    non_numeric_head = df[non_numeric_cols].head(num_rows).to_csv()
+    
+    return non_numeric_cols, non_numeric_head
+
+def separate_decode_list(decided_dict, Y_name):
+    convert_int_cols = [key for key, value in decided_dict.items() if value == 1]
+    one_hot_cols = [key for key, value in decided_dict.items() if value == 2]
+    if Y_name in one_hot_cols:
+        one_hot_cols.remove(Y_name)
+        convert_int_cols.append(Y_name)
+    return convert_int_cols, one_hot_cols
+
+if __name__ == '__main__':
+    pass
+    # decided_dict = {"GENDER": 1, "LUNG_CANCER": 1}
+    # print(separate_decode_list(decided_dict, 'LUNG_CANCER'))

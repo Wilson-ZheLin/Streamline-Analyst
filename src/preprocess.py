@@ -1,5 +1,4 @@
 import pandas as pd
-from llm_service import decide_encode_type
 from util import read_file, non_numeric_columns_and_head, separate_decode_list
 
 def initial(df):

@@ -1,7 +1,7 @@
 import pandas as pd
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-import numpy as np
 
 def decide_pca(df, cumulative_variance_threshold=0.95, min_dim_reduction_ratio=0.1):
     """

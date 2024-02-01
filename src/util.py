@@ -1,9 +1,7 @@
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from imblearn.over_sampling import RandomOverSampler
-from collections import Counter
-from sklearn.model_selection import train_test_split
 import os
+import pandas as pd
+from collections import Counter
+from imblearn.over_sampling import RandomOverSampler
 
 def read_file(file_path):
 
@@ -33,23 +31,6 @@ def select_Y(df, Y_name):
         return X, Y
     else:
         return -1
-
-def split_data(X, Y, test_size=0.2, random_state = 42, perform_pca = False):
-    """
-    Split data into training and test sets.
-    """
-    
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size, random_state=random_state)
-
-    print('Training data count: ', len(X_train))
-    print('Testing data count: ', len(X_test))
-
-    if not perform_pca:
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-    return X_train, X_test, Y_train, Y_test
 
 def check_and_balance(X, Y, balance_threshold=0.5):
     """
@@ -99,6 +80,18 @@ def non_numeric_columns_and_head(df, num_rows=20):
     
     return non_numeric_cols, non_numeric_head
 
+def contain_null_attributes_info(df):
+    attributes = df.columns[df.isnull().any()].tolist()
+    if not attributes: return [], -1, -1
+
+    description_info = df[attributes].describe(percentiles=[.5])
+    description_info = description_info.loc[['count', 'mean', '50%', 'std']].round(2).to_csv()
+
+    dtypes_df = df[attributes].dtypes
+    types_info = "\n".join([f"{index}:{dtype}" for index, dtype in dtypes_df.items()])
+
+    return attributes, types_info, description_info
+
 def separate_decode_list(decided_dict, Y_name):
     convert_int_cols = [key for key, value in decided_dict.items() if value == 1]
     one_hot_cols = [key for key, value in decided_dict.items() if value == 2]
@@ -106,6 +99,15 @@ def separate_decode_list(decided_dict, Y_name):
         one_hot_cols.remove(Y_name)
         convert_int_cols.append(Y_name)
     return convert_int_cols, one_hot_cols
+
+def separate_fill_null_list(fill_null_dict):
+    mean_list = [key for key, value in fill_null_dict.items() if value == 1]
+    median_list = [key for key, value in fill_null_dict.items() if value == 2]
+    mode_list = [key for key, value in fill_null_dict.items() if value == 3]
+    new_category_list = [key for key, value in fill_null_dict.items() if value == 4]
+    interpolation_list = [key for key, value in fill_null_dict.items() if value == 5]
+    return mean_list, median_list, mode_list, new_category_list, interpolation_list
+
 
 if __name__ == '__main__':
     pass

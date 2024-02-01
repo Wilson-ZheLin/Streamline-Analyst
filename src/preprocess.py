@@ -4,13 +4,13 @@ from util import read_file, non_numeric_columns_and_head, separate_decode_list
 
 def initial(df):
     shape = df.shape
-    info = df.info()
+    df.info()
+    head = df.head()
     types = df.dtypes
     description = df.describe(include='all')
     null_info = df.isnull()
     print(df.head(), '\n')
     print(shape, '\n')
-    print(info, '\n')
     print(types, '\n')
     print(description, '\n')
     print(null_info.sum(), '\n')
@@ -114,6 +114,9 @@ def remove_rows_with_empty_target(df, Y_name):
     cleaned_df = df.dropna(subset=[Y_name])
     return cleaned_df
 
+def remove_duplicates(df):
+    return df.drop_duplicates()
+
 if __name__ == '__main__':
     path = '/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/src/data/survey lung cancer.csv'
     df = read_file(path)
@@ -125,10 +128,11 @@ if __name__ == '__main__':
     # print(mappings)
     # print(non_numeric_cols)
     # print(non_numeric_head)
-    non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(df)
-    encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head)
-    convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, "LUNG_CANCER")
-    new_df, mappings = convert_to_numeric(df, convert_int_cols, one_hot_cols)
-    print(mappings)
-    print(new_df)
+
+    # non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(df)
+    # encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head)
+    # convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, "LUNG_CANCER")
+    # new_df, mappings = convert_to_numeric(df, convert_int_cols, one_hot_cols)
+    # print(mappings)
+    # print(new_df)
     

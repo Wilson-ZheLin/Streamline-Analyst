@@ -5,6 +5,23 @@ import plotly.express as px
 from model_service import fpr_and_tpr
 from sklearn.metrics import confusion_matrix
 
+def distribution_histogram(df, attribute):
+    plt.figure()
+    sns.distplot(df[attribute])
+    plt.title(f"Distribution of {attribute}")
+    plt.show()
+
+def distribution_boxplot(df, attribute):
+    plt.figure()
+    sns.boxenplot(data = df[attribute], palette = ["#32936f","#26a96c","#2bc016"])
+    plt.title(f"Boxplot of {attribute}")
+    plt.show()
+
+def scatter_plot(df, attribute):
+    plt.figure()
+    sns.scatterplot(data = df, x = attribute[0], y = attribute[1])
+    plt.title(f"Scatter plot of {attribute[0]} and {attribute[1]}")
+    plt.show()
 
 def correlation_matrix(df):
     corr = df.corr()
@@ -12,7 +29,7 @@ def correlation_matrix(df):
     plt.show()
     return corr, cm
 
-def listAll(df, max_plots=16):
+def list_all(df, max_plots=16):
 
     # Calculate the number of plots to display (up to 16)
     num_plots = min(len(df.columns), max_plots)

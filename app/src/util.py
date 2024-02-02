@@ -1,4 +1,5 @@
 import os
+import io
 import pandas as pd
 from collections import Counter
 from imblearn.over_sampling import RandomOverSampler
@@ -6,7 +7,7 @@ from imblearn.over_sampling import RandomOverSampler
 def read_file(file_path):
 
     # Check the size of the file
-    if os.path.getsize(file_path) > 50 * 1024 * 1024:  # 50MB in bytes
+    if os.path.getsize(file_path) > 200 * 1024 * 1024:  # 200MB in bytes
         raise ValueError("Too large file")
     
     # Extract the file extension
@@ -21,6 +22,28 @@ def read_file(file_path):
     elif file_extension in ['xls', 'xlsx']:
         # Read Excel file
         return pd.read_excel(file_path, engine='openpyxl')
+    else:
+        raise ValueError("Unsupported file format: " + file_extension)
+
+def read_file_from_streamlit(uploaded_file):
+
+    # Check the size of the file
+    if uploaded_file.size > 200 * 1024 * 1024:  # 200MB in bytes
+        raise ValueError("Too large file")
+
+    # Extract the file extension
+    file_extension = uploaded_file.name.split('.')[-1]
+
+    if file_extension == 'csv':
+        # Read CSV file
+        return pd.read_csv(uploaded_file)
+    elif file_extension == 'json':
+        # Read JSON file
+        return pd.read_json(uploaded_file)
+    elif file_extension in ['xls', 'xlsx']:
+        # Read Excel file
+        # Use io.BytesIO to handle the binary stream
+        return pd.read_excel(io.BytesIO(uploaded_file.read()), engine='openpyxl')
     else:
         raise ValueError("Unsupported file format: " + file_extension)
 

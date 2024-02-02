@@ -1,5 +1,5 @@
 import time
-from util import read_file, separate_fill_null_list, contain_null_attributes_info
+from src.util import read_file, separate_fill_null_list, contain_null_attributes_info
 
 def contains_missing_value(df):
     return df.isnull().values.any()
@@ -16,6 +16,32 @@ def fill_null_values(df, mean_list, median_list, mode_list, new_category_list, i
     if interpolation_list:
         df = fill_with_interpolation(df, interpolation_list)
     return df
+
+def remove_high_null(df, threshold_row=0.5, threshold_col=0.7):
+    """
+    Remove rows and columns from a DataFrame where the proportion of null values
+    is greater than the specified threshold.
+
+    :param df: Pandas DataFrame to be processed.
+    :param threshold_row: Proportion threshold for null values (default is 0.5 for rows).
+    :param threshold_col: Proportion threshold for null values (default is 0.7 for columns).
+    :return: DataFrame with high-null rows and columns removed.
+    """
+    # Calculate the proportion of nulls in each column
+    null_prop_col = df.isnull().mean()
+    cols_to_drop = null_prop_col[null_prop_col > threshold_col].index
+
+    # Drop columns with high proportion of nulls
+    df_cleaned = df.drop(columns=cols_to_drop)
+
+    # Calculate the proportion of nulls in each row
+    null_prop_row = df_cleaned.isnull().mean(axis=1)
+    rows_to_drop = null_prop_row[null_prop_row > threshold_row].index
+
+    # Drop rows with high proportion of nulls
+    df_cleaned = df_cleaned.drop(index=rows_to_drop)
+
+    return df_cleaned
 
 def fill_with_mean(df, attributes):
     for attr in attributes:

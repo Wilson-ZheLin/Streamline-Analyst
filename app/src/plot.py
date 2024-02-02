@@ -2,7 +2,6 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
-from model_service import fpr_and_tpr
 from sklearn.metrics import confusion_matrix
 
 def distribution_histogram(df, attribute):
@@ -33,30 +32,30 @@ def list_all(df, max_plots=16):
 
     # Calculate the number of plots to display (up to 16)
     num_plots = min(len(df.columns), max_plots)
-
     nrows = int(np.ceil(num_plots / 4))
     ncols = min(num_plots, 4)
 
     fig, axes = plt.subplots(nrows, ncols, figsize=(4 * ncols, 4 * nrows))
-    fig.suptitle('Different feature distributions')
+    fig.suptitle('Attribute Distributions', fontsize=20)
+    plt.style.use('ggplot')
+    sns.set(style="darkgrid")
 
     # if only one plot, convert to list
-    if num_plots == 1:
-        axes = [axes]
+    if num_plots == 1: axes = [axes]
 
     # Flatten the axes array
     axes = axes.flatten()
 
     # Display the histograms
     for i, column in enumerate(df.columns[:num_plots]):
-        sns.histplot(ax=axes[i], data=df, x=column)
+        sns.histplot(ax=axes[i], data=df, x=column, color='#e17160')
 
     # Hide additional subplots
-    for ax in axes[num_plots:]:
-        ax.axis('off')
+    for ax in axes[num_plots:]: ax.axis('off')
 
     plt.tight_layout()
-    plt.show()
+    plt.subplots_adjust(top=0.95) # Adjust the top to accommodate the title
+    return fig
 
 import plotly.express as px
 
@@ -93,8 +92,7 @@ def confusion_metrix(model_name, model, X_test, Y_test):
     plt.title(f"Confusion Matrix for {model_name}", fontsize=14)
     plt.show()
 
-def roc(model_name, model, X_test, Y_test):
-    fpr, tpr = fpr_and_tpr(model, X_test, Y_test)
+def roc(model_name, fpr, tpr):
     plt.figure()
     plt.style.use('ggplot')
     plt.plot([0,1],[0,1],'k--')

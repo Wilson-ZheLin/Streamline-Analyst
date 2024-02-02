@@ -1,5 +1,5 @@
 import pandas as pd
-from util import read_file, non_numeric_columns_and_head, separate_decode_list
+from src.util import read_file, non_numeric_columns_and_head, separate_decode_list
 
 def initial(df):
     shape = df.shape
@@ -74,32 +74,6 @@ def convert_to_one_hot(df, columns_to_convert=[]):
             mappings[column] = {i: column + '_' + str(i) for i in df[column].unique()}
 
     return df_modified, mappings
-
-def remove_high_null(df, threshold_row=0.5, threshold_col=0.7):
-    """
-    Remove rows and columns from a DataFrame where the proportion of null values
-    is greater than the specified threshold.
-
-    :param df: Pandas DataFrame to be processed.
-    :param threshold_row: Proportion threshold for null values (default is 0.5 for rows).
-    :param threshold_col: Proportion threshold for null values (default is 0.7 for columns).
-    :return: DataFrame with high-null rows and columns removed.
-    """
-    # Calculate the proportion of nulls in each column
-    null_prop_col = df.isnull().mean()
-    cols_to_drop = null_prop_col[null_prop_col > threshold_col].index
-
-    # Drop columns with high proportion of nulls
-    df_cleaned = df.drop(columns=cols_to_drop)
-
-    # Calculate the proportion of nulls in each row
-    null_prop_row = df_cleaned.isnull().mean(axis=1)
-    rows_to_drop = null_prop_row[null_prop_row > threshold_row].index
-
-    # Drop rows with high proportion of nulls
-    df_cleaned = df_cleaned.drop(index=rows_to_drop)
-
-    return df_cleaned
 
 def remove_rows_with_empty_target(df, Y_name):
     """

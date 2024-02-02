@@ -6,7 +6,7 @@ import time
 from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
 from langchain.chat_models import ChatOpenAI
-from util import read_file, non_numeric_columns_and_head, contain_null_attributes_info
+from src.util import read_file, non_numeric_columns_and_head, contain_null_attributes_info
 
 config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
 with open(config_path, 'r') as file:

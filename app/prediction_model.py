@@ -85,7 +85,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
         st.success("Data encoded completed using numeric mapping and one-hot!")
         if not all_numeric:
             st.download_button(
-                label="Download Data Encoded",
+                label="Download Encoded Data",
                 data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
                 file_name="encoded_data.csv",
                 mime='text/csv')
@@ -93,7 +93,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     # Correlation Heatmap
     if 'df_cleaned1' not in st.session_state:
         st.session_state.df_cleaned1 = DF
-    st.subheader('Correlation between Attributes')
+    st.subheader('Correlation Between Attributes')
     st.pyplot(correlation_matrix(st.session_state.df_cleaned1))
 
     # Remove duplicate entities
@@ -153,7 +153,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
 
             # Splitting the data
             X_train, X_test, Y_train, Y_test = split_data(X_train_res, Y_train_res, st.session_state.test_percentage / 100, 42, st.session_state.to_perform_pca)
-
+            
             # Decide model types:
             if "decided_model" not in st.session_state:
                 st.session_state["decided_model"] = False
@@ -169,6 +169,17 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
 
             if st.session_state["decided_model"]:
                 st.success("Models selected based on your data!")
+                
+                # Data set metrics
+                data_col1, data_col2, data_col3 = st.columns(3)
+                with data_col1:
+                    st.metric(label="Total Data", value=len(X_train)+len(X_test), delta=None)
+                with data_col2:
+                    st.metric(label="Training Data", value=len(X_train), delta=None)
+                with data_col3:
+                    st.metric(label="Testing Data", value=len(X_test), delta=None)
+                
+                # Model training
                 model_col1, model_col2, model_col3 = st.columns(3)
                 with model_col1:
                     model1_name = get_model_name(st.session_state.model_list[0])

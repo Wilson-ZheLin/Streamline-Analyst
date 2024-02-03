@@ -103,9 +103,9 @@ def roc(model_name, fpr, tpr):
     plt.style.use('ggplot')
     plt.plot([0,1],[0,1],'k--')
     plt.plot(fpr, tpr, label=model_name)
-    plt.xlabel('False positive rate')
-    plt.ylabel('True positive rate')
-    plt.title(f'ROC curve - {model_name} model')
+    plt.xlabel('False Positive rate')
+    plt.ylabel('True Positive rate')
+    plt.title(f'ROC Curve - {model_name}')
     plt.legend(loc='best')
     plt.xticks(rotation=45)
     return fig

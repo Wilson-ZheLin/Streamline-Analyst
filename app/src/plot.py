@@ -51,7 +51,7 @@ def list_all(df, max_plots=16):
 
     # Display the histograms
     for i, column in enumerate(df.columns[:num_plots]):
-        sns.histplot(ax=axes[i], data=df, x=column, color='#3c8cc3')
+        sns.histplot(ax=axes[i], data=df, x=column, color='#25a0ff')
 
     # Hide additional subplots
     for ax in axes[num_plots:]: ax.axis('off')
@@ -77,7 +77,6 @@ def count_Y(df, Y_name, mapping = None):
         mapped_data = df[Y_name].map(mapping[Y_name]) if mapping and Y_name in mapping else df[Y_name]
         value_counts = mapped_data.value_counts()
         
-        print(value_counts)
         plt.figure(figsize=(8, 8))
         plt.pie(value_counts, labels=value_counts.index, startangle=90, autopct='%1.1f%%')
         plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.

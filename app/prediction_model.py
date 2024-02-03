@@ -1,10 +1,11 @@
 import streamlit as st
+from util import developer_info
 from src.plot import list_all, correlation_matrix, confusion_metrix, roc
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
 from src.preprocess import convert_to_numeric, remove_rows_with_empty_target, remove_duplicates
 from src.llm_service import decide_fill_null, decide_encode_type, decide_model
 from src.pca import decide_pca, perform_pca
-from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc
+from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc, save_model
 from src.predictive_model import train_selected_model
 from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name
 
@@ -15,6 +16,7 @@ def start_training_model():
     st.session_state["start_training"] = True
 
 def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
+    st.divider()
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
@@ -157,6 +159,8 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
             # Decide model types:
             if "decided_model" not in st.session_state:
                 st.session_state["decided_model"] = False
+            if "all_set" not in st.session_state:
+                st.session_state["all_set"] = False
             
             if not st.session_state["decided_model"]:
                 with st.spinner("Deciding models based on data..."):
@@ -168,56 +172,89 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
                     st.session_state["decided_model"] = True
 
             if st.session_state["decided_model"]:
-                st.success("Models selected based on your data!")
-                
-                # Data set metrics
-                data_col1, data_col2, data_col3 = st.columns(3)
-                with data_col1:
-                    st.metric(label="Total Data", value=len(X_train)+len(X_test), delta=None)
-                with data_col2:
-                    st.metric(label="Training Data", value=len(X_train), delta=None)
-                with data_col3:
-                    st.metric(label="Testing Data", value=len(X_test), delta=None)
-                
-                # Model training
-                model_col1, model_col2, model_col3 = st.columns(3)
-                with model_col1:
-                    model1_name = get_model_name(st.session_state.model_list[0])
-                    st.subheader(model1_name)
-                    with st.spinner("Model training in progress..."):
-                        model1 = train_selected_model(X_train, Y_train, st.session_state.model_list[0])
-                    # Model metrics
-                    st.write(f"The accuracy of the {model1_name} is: ", f'\n:green[**{model1.score(X_test, Y_test)}**]')
-                    st.pyplot(confusion_metrix(model1_name, model1, X_test, Y_test))
-                    if st.session_state.model_list[0] not in [1, 3]:
-                        fpr1, tpr1 = fpr_and_tpr(model1, X_test, Y_test)
-                        st.pyplot(roc(model1_name, fpr1, tpr1))
-                        st.write(f"The AUC of the {model1_name} is: ", f'\n:green[**{auc(fpr1, tpr1)}**]')
+                display_results(X_train, X_test, Y_train, Y_test)
+                st.session_state["all_set"] = True
+            
+            if st.session_state["all_set"]:
+                download_col1, download_col2, download_col3 = st.columns(3)
+                with download_col1:
+                    st.download_button(label="Download Model", data=st.session_state.downloadable_model1, file_name=f"{st.session_state.model1_name}.joblib", mime="application/octet-stream")
+                with download_col2:
+                    st.download_button(label="Download Model", data=st.session_state.downloadable_model2, file_name=f"{st.session_state.model2_name}.joblib", mime="application/octet-stream")
+                with download_col3:
+                    st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
 
-                with model_col2:
-                    model2_name = get_model_name(st.session_state.model_list[1])
-                    st.subheader(model2_name)
-                    with st.spinner("Model training in progress..."):
-                        model2 = train_selected_model(X_train, Y_train, st.session_state.model_list[1])
-                    # Model metrics
-                    st.write(f"The accuracy of the {model2_name} is: ", f'\n:green[**{model2.score(X_test, Y_test)}**]')
-                    st.pyplot(confusion_metrix(model2_name, model2, X_test, Y_test))
-                    if st.session_state.model_list[1] not in [1, 3]:
-                        fpr2, tpr2 = fpr_and_tpr(model2, X_test, Y_test)
-                        st.pyplot(roc(model2_name, fpr2, tpr2))
-                        st.write(f"The AUC of the {model2_name} is: ", f'\n:green[**{auc(fpr2, tpr2)}**]')
-                    
-                with model_col3:
-                    model3_name = get_model_name(st.session_state.model_list[2])
-                    st.subheader(model3_name)
-                    with st.spinner("Model training in progress..."):
-                        model3 = train_selected_model(X_train, Y_train, st.session_state.model_list[2])
-                    # Model metrics
-                    st.write(f"The accuracy of the {model3_name} is: ", f'\n:green[**{model3.score(X_test, Y_test)}**]')
-                    st.pyplot(confusion_metrix(model3_name, model3, X_test, Y_test))
-                    if st.session_state.model_list[2] not in [1, 3]:
-                        fpr3, tpr3 = fpr_and_tpr(model3, X_test, Y_test)
-                        st.pyplot(roc(model3_name, fpr3, tpr3))
-                        st.write(f"The AUC of the {model3_name} is: ", f'\n:green[**{auc(fpr3, tpr3)}**]')
+    st.divider()
+    if st.session_state["all_set"]: developer_info()
 
-            st.divider()
+def display_results(X_train, X_test, Y_train, Y_test):
+    st.success("Models selected based on your data!")
+
+    # Data set metrics
+    data_col1, data_col2, data_col3 = st.columns(3)
+    with data_col1:
+        st.metric(label="Total Data", value=len(X_train)+len(X_test), delta=None)
+    with data_col2:
+        st.metric(label="Training Data", value=len(X_train), delta=None)
+    with data_col3:
+        st.metric(label="Testing Data", value=len(X_test), delta=None)
+    
+    # Model training
+    model_col1, model_col2, model_col3 = st.columns(3)
+    with model_col1:
+        if "model1_name" not in st.session_state:
+            st.session_state.model1_name = get_model_name(st.session_state.model_list[0])
+        st.subheader(st.session_state.model1_name)
+        with st.spinner("Model training in progress..."):
+            if 'model1' not in st.session_state:
+                st.session_state.model1 = train_selected_model(X_train, Y_train, st.session_state.model_list[0])
+                st.session_state.downloadable_model1 = save_model(st.session_state.model1)
+        # Model metrics
+        st.write(f"The accuracy of the {st.session_state.model1_name}: ", f'\n:green[**{st.session_state.model1.score(X_test, Y_test)}**]')
+        st.pyplot(confusion_metrix(st.session_state.model1_name, st.session_state.model1, X_test, Y_test))
+        if st.session_state.model_list[0] not in [1, 3]:
+            if 'fpr1' not in st.session_state:
+                fpr1, tpr1 = fpr_and_tpr(st.session_state.model1, X_test, Y_test)
+                st.session_state.fpr1 = fpr1
+                st.session_state.tpr1 = tpr1
+            st.pyplot(roc(st.session_state.model1_name, st.session_state.fpr1, st.session_state.tpr1))
+            st.write(f"The AUC of the {st.session_state.model1_name}: ", f'\n:green[**{auc(st.session_state.fpr1, st.session_state.tpr1)}**]')
+
+    with model_col2:
+        if "model2_name" not in st.session_state:
+            st.session_state.model2_name = get_model_name(st.session_state.model_list[1])
+        st.subheader(st.session_state.model2_name)
+        with st.spinner("Model training in progress..."):
+            if 'model2' not in st.session_state:
+                st.session_state.model2 = train_selected_model(X_train, Y_train, st.session_state.model_list[1])
+                st.session_state.downloadable_model2 = save_model(st.session_state.model2)
+        # Model metrics
+        st.write(f"The accuracy of the {st.session_state.model2_name}: ", f'\n:green[**{st.session_state.model2.score(X_test, Y_test)}**]')
+        st.pyplot(confusion_metrix(st.session_state.model2_name, st.session_state.model2, X_test, Y_test))
+        if st.session_state.model_list[1] not in [1, 3]:
+            if 'fpr2' not in st.session_state:
+                fpr2, tpr2 = fpr_and_tpr(st.session_state.model2, X_test, Y_test)
+                st.session_state.fpr2 = fpr2
+                st.session_state.tpr2 = tpr2
+            st.pyplot(roc(st.session_state.model2_name, st.session_state.fpr2, st.session_state.tpr2))
+            st.write(f"The AUC of the {st.session_state.model2_name}: ", f'\n:green[**{auc(st.session_state.fpr2, st.session_state.tpr2)}**]')
+        
+    with model_col3:
+        if "model3_name" not in st.session_state:
+            st.session_state.model3_name = get_model_name(st.session_state.model_list[2])
+        st.subheader(st.session_state.model3_name)
+        with st.spinner("Model training in progress..."):
+            if 'model3' not in st.session_state:
+                st.session_state.model3 = train_selected_model(X_train, Y_train, st.session_state.model_list[2])
+                st.session_state.downloadable_model3 = save_model(st.session_state.model3)
+        # Model metrics
+        st.write(f"The accuracy of the {st.session_state.model3_name}: ", f'\n:green[**{st.session_state.model3.score(X_test, Y_test)}**]')
+        st.pyplot(confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test))
+        if st.session_state.model_list[2] not in [1, 3]:
+            if 'fpr3' not in st.session_state:
+                fpr3, tpr3 = fpr_and_tpr(st.session_state.model3, X_test, Y_test)
+                st.session_state.fpr3 = fpr3
+                st.session_state.tpr3 = tpr3
+            st.pyplot(roc(st.session_state.model3_name, st.session_state.fpr3, st.session_state.tpr3))
+            st.write(f"The AUC of the {st.session_state.model3_name}: ", f'\n:green[**{auc(st.session_state.fpr3, st.session_state.tpr3)}**]')
+    

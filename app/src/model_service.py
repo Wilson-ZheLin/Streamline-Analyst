@@ -1,9 +1,17 @@
+import io
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 from collections import Counter
+from joblib import dump
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.metrics import roc_curve
 from sklearn.model_selection import train_test_split
+
+def save_model(model):
+    buffer = io.BytesIO()
+    dump(model, buffer)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 def model_score(model, X_test, Y_test):
     score = model.score(X_test, Y_test)
@@ -23,9 +31,6 @@ def split_data(X, Y, test_size = 0.2, random_state = 42, perform_pca = False):
     Split data into training and test sets.
     """
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size, random_state=random_state)
-
-    print('Training data count: ', len(X_train))
-    print('Testing data count: ', len(X_test))
 
     if not perform_pca:
         scaler = StandardScaler()
@@ -58,8 +63,6 @@ def check_and_balance(X, Y, balance_threshold=0.5):
     if is_imbalanced:
         oversampler = RandomOverSampler(random_state=0)
         X_resampled, Y_resampled = oversampler.fit_resample(X, Y)
-        print("Resampled class distribution:", Counter(Y_resampled))
         return X_resampled, Y_resampled
     else:
-        print("No significant imbalance detected.")
         return X, Y

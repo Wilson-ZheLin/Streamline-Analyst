@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-from util import load_lottie
+from util import load_lottie, stream_data, developer_info
 from prediction_model import prediction_model_pipeline
 from src.util import read_file_from_streamlit
 
@@ -8,10 +8,17 @@ st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout
 
 # HEADER SECTION
 with st.container():
-    st.subheader("Streamline Analyst 👋")
+    st.subheader("Hello there 👋")
     st.title("Welcome to Streamline Analyst!")
-    st.write("This is an application for Streamline Analyst. ")
-    st.write("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)")
+    if 'initialized' not in st.session_state:
+        st.session_state.initialized = True
+    if st.session_state.initialized:
+        st.write(stream_data("This is an application for Streamline Analyst."))
+        st.write(stream_data("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)"))
+        st.session_state.initialized = False
+    else:
+        st.write("This is an application for Streamline Analyst.")
+        st.write("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)")
 
 # CONTENT SECTION
 with st.container():
@@ -60,7 +67,7 @@ with st.container():
     if 'button_clicked' not in st.session_state:
         st.session_state.button_clicked = False
 
-    if st.button('Start Analysis', disabled=not is_proceed_enabled, type="primary"):
+    if st.button('Start Analysis', disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"):
         st.session_state.button_clicked = True
 
     if st.session_state.button_clicked:

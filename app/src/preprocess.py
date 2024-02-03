@@ -3,13 +3,15 @@ from src.util import read_file, non_numeric_columns_and_head, separate_decode_li
 
 def initial(df):
     shape = df.shape
-    df.info()
-    head = df.head()
+    # df.info()
+    head = df.head(10)
+    nunique = df.nunique()
     types = df.dtypes
     description = df.describe(include='all')
     null_info = df.isnull()
-    print(df.head(), '\n')
     print(shape, '\n')
+    print(head, '\n')
+    print(nunique, '\n')
     print(types, '\n')
     print(description, '\n')
     print(null_info.sum(), '\n')
@@ -95,7 +97,7 @@ if __name__ == '__main__':
     df = read_file(path)
     # df, mappings = convert_to_numeric(df, ['GENDER', 'LUNG_CANCER'])
     # df, mappings = convert_to_one_hot(df, ['GENDER', 'LUNG_CANCER'])
-    # initial(df)
+    initial(df)
     # non_numeric_cols, non_numeric_head = non_numeric_columns_and_head(df)
     # print(df.head(10))
     # print(mappings)

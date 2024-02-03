@@ -1,5 +1,6 @@
 import seaborn as sns
 import numpy as np
+import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.metrics import confusion_matrix
@@ -22,11 +23,12 @@ def scatter_plot(df, attribute):
     plt.title(f"Scatter plot of {attribute[0]} and {attribute[1]}")
     plt.show()
 
+@st.cache_data
 def correlation_matrix(df):
-    corr = df.corr()
-    cm = sns.heatmap(corr, annot = True,cmap = 'viridis')
-    plt.show()
-    return corr, cm
+    plt.figure(figsize=(16, 12))
+    sns.set(font_scale=0.9)
+    sns.heatmap(df.corr(), annot=True, cmap='viridis', annot_kws={"size": 12})
+    return plt.gcf()
 
 def list_all(df, max_plots=16):
 
@@ -48,7 +50,7 @@ def list_all(df, max_plots=16):
 
     # Display the histograms
     for i, column in enumerate(df.columns[:num_plots]):
-        sns.histplot(ax=axes[i], data=df, x=column, color='#e17160')
+        sns.histplot(ax=axes[i], data=df, x=column, color='#3c8cc3')
 
     # Hide additional subplots
     for ax in axes[num_plots:]: ax.axis('off')
@@ -88,12 +90,15 @@ def count_Y(df, Y_name, mapping = None):
 def confusion_metrix(model_name, model, X_test, Y_test):
     Y_pred = model.predict(X_test)
     matrix = confusion_matrix(Y_test, Y_pred)
-    sns.heatmap(matrix, annot=True, cmap='hot_r')
-    plt.title(f"Confusion Matrix for {model_name}", fontsize=14)
-    plt.show()
+    plt.figure(figsize=(10, 7)) # temporary
+    sns_heatmap = sns.heatmap(matrix, annot=True, cmap='Blues', fmt='g', annot_kws={"size": 20})
+    plt.title(f"Confusion Matrix for {model_name}", fontsize=20)
+    plt.xlabel('Predicted labels', fontsize=16)
+    plt.ylabel('True labels', fontsize=16)
+    return sns_heatmap.figure
 
 def roc(model_name, fpr, tpr):
-    plt.figure()
+    fig = plt.figure()
     plt.style.use('ggplot')
     plt.plot([0,1],[0,1],'k--')
     plt.plot(fpr, tpr, label=model_name)
@@ -102,4 +107,4 @@ def roc(model_name, fpr, tpr):
     plt.title(f'ROC curve - {model_name} model')
     plt.legend(loc='best')
     plt.xticks(rotation=45)
-    plt.show()
+    return fig

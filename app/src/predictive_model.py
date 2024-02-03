@@ -2,15 +2,25 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier,
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
-import xgboost as xgb
+from xgboost import XGBClassifier
 
-def RandomForest_train(X_train, Y_train, n_estimators=100, random_state=None, model_params=None):
-    if model_params is not None: model_params = {}
-    rf_params = {'n_estimators': n_estimators, 'random_state': random_state}
-    rf_params.update(model_params)
-    rf = RandomForestClassifier(**rf_params)
-    rf.fit(X_train, Y_train)
-    return rf
+def train_selected_model(X_train, Y_train, model_type, model_params=None):
+    if model_type == 1:
+        return LinearRegression_train(X_train, Y_train, model_params)
+    elif model_type == 2:
+        return LogisticRegression_train(X_train, Y_train, model_params)
+    elif model_type == 3:
+        return SVM_train(X_train, Y_train, model_params)
+    elif model_type == 4:
+        return NaiveBayes_train(X_train, Y_train, model_params)
+    elif model_type == 5:
+        return RandomForest_train(X_train, Y_train, model_params=model_params)
+    elif model_type == 6:
+        return AdaBoost_train(X_train, Y_train, model_params)
+    elif model_type == 7:
+        return XGBoost_train(X_train, Y_train, model_params)
+    elif model_type == 8:
+        return GradientBoosting_train(X_train, Y_train, model_params)
 
 def LinearRegression_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}
@@ -30,17 +40,19 @@ def SVM_train(X_train, Y_train, model_params=None):
     svm.fit(X_train, Y_train)
     return svm
 
-def GradientBoosting_train(X_train, Y_train, model_params=None):
-    if model_params is None: model_params = {}
-    gb = GradientBoostingClassifier(**model_params)
-    gb.fit(X_train, Y_train)
-    return gb
-
 def NaiveBayes_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}
     nb = GaussianNB(**model_params)
     nb.fit(X_train, Y_train)
     return nb
+
+def RandomForest_train(X_train, Y_train, n_estimators=100, random_state=None, model_params=None):
+    if model_params is None: model_params = {}
+    rf_params = {'n_estimators': n_estimators, 'random_state': random_state}
+    rf_params.update(model_params)
+    rf = RandomForestClassifier(**rf_params)
+    rf.fit(X_train, Y_train)
+    return rf
 
 def AdaBoost_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}
@@ -50,6 +62,12 @@ def AdaBoost_train(X_train, Y_train, model_params=None):
 
 def XGBoost_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}
-    dtrain = xgb.DMatrix(X_train, label=Y_train)
-    xg = xgb.train(model_params, dtrain)
-    return xg
+    xgb = XGBClassifier(**model_params)
+    xgb.fit(X_train, Y_train)
+    return xgb
+
+def GradientBoosting_train(X_train, Y_train, model_params=None):
+    if model_params is None: model_params = {}
+    gb = GradientBoostingClassifier(**model_params)
+    gb.fit(X_train, Y_train)
+    return gb

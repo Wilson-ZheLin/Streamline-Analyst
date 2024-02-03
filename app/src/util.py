@@ -1,8 +1,6 @@
 import os
 import io
 import pandas as pd
-from collections import Counter
-from imblearn.over_sampling import RandomOverSampler
 
 def read_file(file_path):
 
@@ -55,35 +53,8 @@ def select_Y(df, Y_name):
     else:
         return -1
 
-def check_and_balance(X, Y, balance_threshold=0.5):
-    """
-    Check if the dataset is imbalanced and perform oversampling if necessary.
-
-    Args:
-    X (DataFrame): Feature set.
-    Y (Series): Target variable.
-    balance_threshold (float): Threshold for class balance.
-
-    Returns:
-    X_resampled, Y_resampled (DataFrame/Series): Resampled data if imbalance is detected, 
-    else original data.
-    """
-    # Check the distribution of the target variable
-    class_distribution = Counter(Y)
-
-    # Determine if the dataset is imbalanced
-    min_class_samples = min(class_distribution.values())
-    max_class_samples = max(class_distribution.values())
-    is_imbalanced = min_class_samples / max_class_samples < balance_threshold
-
-    if is_imbalanced:
-        oversampler = RandomOverSampler(random_state=0)
-        X_resampled, Y_resampled = oversampler.fit_resample(X, Y)
-        print("Resampled class distribution:", Counter(Y_resampled))
-        return X_resampled, Y_resampled
-    else:
-        print("No significant imbalance detected.")
-        return X, Y
+def check_all_columns_numeric(df):
+    return df.select_dtypes(include=[int, float]).shape[1] == df.shape[1]
 
 def non_numeric_columns_and_head(df, num_rows=20):
     """
@@ -115,6 +86,13 @@ def contain_null_attributes_info(df):
 
     return attributes, types_info, description_info
 
+def get_data_overview(df):
+    shape_info = str(df.shape)
+    head_info = df.head().to_csv()
+    nunique_info = df.nunique().to_csv()
+    description_info = df.describe(include='all').to_csv()
+    return shape_info, head_info, nunique_info, description_info
+
 def separate_decode_list(decided_dict, Y_name):
     convert_int_cols = [key for key, value in decided_dict.items() if value == 1]
     one_hot_cols = [key for key, value in decided_dict.items() if value == 2]
@@ -131,8 +109,32 @@ def separate_fill_null_list(fill_null_dict):
     interpolation_list = [key for key, value in fill_null_dict.items() if value == 5]
     return mean_list, median_list, mode_list, new_category_list, interpolation_list
 
+def get_selected_models(model_dict):
+    return list(model_dict.values())
+
+def get_model_name(model_no):
+    if model_no == 1:
+        return "Linear Regression"
+    elif model_no == 2:
+        return "Logistic Regression"
+    elif model_no == 3:
+        return "SVM"
+    elif model_no == 4:
+        return "Naive Bayes"
+    elif model_no == 5:
+        return "Random Forest"
+    elif model_no == 6:
+        return "ADA Boost"
+    elif model_no == 7:
+        return "XGBoost"
+    elif model_no == 8:
+        return "Grandient Boost"
 
 if __name__ == '__main__':
-    pass
-    # decided_dict = {"GENDER": 1, "LUNG_CANCER": 1}
-    # print(separate_decode_list(decided_dict, 'LUNG_CANCER'))
+    path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/survey lung cancer.csv"
+    df = read_file(path)
+    shape_info, head_info, nunique_info, description_info = get_data_overview(df)
+    print(shape_info)
+    print(head_info)
+    print(nunique_info)
+    print(description_info)

@@ -1,12 +1,22 @@
 import streamlit as st
-from src.plot import list_all
+from src.plot import list_all, correlation_matrix, confusion_metrix, roc
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
-from src.llm_service import decide_fill_null
-from src.util import contain_null_attributes_info, separate_fill_null_list
+from src.preprocess import convert_to_numeric, remove_rows_with_empty_target, remove_duplicates
+from src.llm_service import decide_fill_null, decide_encode_type, decide_model
+from src.pca import decide_pca, perform_pca
+from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc
+from src.predictive_model import train_selected_model
+from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name
+
+def update_balance_data():
+    st.session_state.balance_data = st.session_state.to_perform_balance
+
+def start_training_model():
+    st.session_state["start_training"] = True
 
 def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     st.subheader('Data Overview')
-    st.write(DF.describe())
+    st.dataframe(DF.describe())
     st.pyplot(list_all(DF))
     st.subheader('Target Variable')
     attributes = DF.columns.tolist()
@@ -17,27 +27,174 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     )
     st.write(f'Attribute selected: :green[{selected_Y}]')
     
+    # Data Imputation
     st.subheader('Handle and Impute Missing Values')
-    if 'is_filled' not in st.session_state:
-        st.session_state.is_filled = False
+    contain_null = contains_missing_value(DF)
 
-    with st.spinner("Processing **missing values** in the data..."):
-        if contains_missing_value(DF) and not st.session_state.button_clicked:
-            filled_df = remove_high_null(DF)
-            attributes, types_info, description_info = contain_null_attributes_info(filled_df)
-            fill_result_dict = decide_fill_null(attributes, types_info, description_info)
-            mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)
-            filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list)
-            st.session_state.button_clicked = True
-    st.success(':green[Missing value processing completed!]')
+    if 'filled_df' not in st.session_state:
+        if contain_null:
+            with st.status("Processing **missing values** in the data...", expanded=True) as status:
+                st.write("Filtering out high-frequency missing rows and columns...")
+                filled_df = remove_high_null(DF)
+                filled_df = remove_rows_with_empty_target(filled_df, selected_Y)
+                st.write("Large language model analysis...")
+                attributes, types_info, description_info = contain_null_attributes_info(filled_df)
+                fill_result_dict = decide_fill_null(attributes, types_info, description_info)
+                st.write("Imputing missing values...")
+                mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)
+                filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list)
+                # Store the imputed DataFrame in session_state
+                st.session_state.filled_df = filled_df
+                DF = filled_df
+                status.update(label='Missing value processing completed!', state="complete", expanded=False)
+        else:
+            st.success("No missing values detected. Processing skipped.")
 
-    if st.session_state.is_filled:
+    if contain_null and 'filled_df' in st.session_state:
+        st.success("Missing value processing completed!")
         st.download_button(
             label="Download Data with Missing Values Imputed",
-            data=filled_df.to_csv(),
-            file_name="missing_values_imputed.csv",
-            mime='text/csv'
-        )
-        
-    st.divider()
+            data=st.session_state.filled_df.to_csv(index=False).encode('utf-8'),
+            file_name="imputed_missing_values.csv",
+            mime='text/csv')
+
+    # Data Encoding
+    st.subheader("Process Data Encoding")
+    all_numeric = check_all_columns_numeric(DF)
     
+    if 'encoded_df' not in st.session_state:
+        if not all_numeric:
+            with st.status("Encoding non-numeric data using **numeric mapping** and **one-hot**...", expanded=True) as status:
+                non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(DF)
+                st.write("Large language model analysis...")
+                encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head)
+                st.write("Encoding the data...")
+                convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, selected_Y)
+                encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols)
+                # Store the imputed DataFrame in session_state
+                st.session_state.encoded_df = encoded_df
+                DF = encoded_df
+                status.update(label='Data encoding completed!', state="complete", expanded=False)
+        else:
+            st.success("All columns are numeric. Processing skipped.")
+        
+    if not all_numeric and 'encoded_df' in st.session_state:
+        st.success("Data encoded completed using numeric mapping and one-hot!")
+        st.download_button(
+            label="Download Data Encoded",
+            data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
+            file_name="encoded_data.csv",
+            mime='text/csv')
+    
+    # Correlation Heatmap
+    if 'df_for_heatmap' not in st.session_state:
+        st.session_state.df_for_heatmap = DF
+    st.subheader('Correlation between Attributes')
+    st.pyplot(correlation_matrix(st.session_state.df_for_heatmap))
+
+    # Remove duplicate entities
+    st.subheader('Remove Duplicate Entities')
+    DF = remove_duplicates(DF)
+    st.info("Duplicate rows removed.")
+    
+    # PCA
+    st.subheader('Principal Component Analysis')
+    st.write("Deciding whether to perform PCA...")
+    to_perform_pca, n_components = decide_pca(DF.drop(columns=[selected_Y]))
+    if to_perform_pca:
+        DF = perform_pca(DF, n_components, selected_Y)
+    st.success("Completed!")
+
+    # Splitting and Balancing
+    if 'test_percentage' not in st.session_state:
+        st.session_state.test_percentage = 20
+    if 'balance_data' not in st.session_state:
+        st.session_state.balance_data = True
+
+    # Model Training
+    if "start_training" not in st.session_state:
+        st.session_state["start_training"] = False
+    if 'model_trained' not in st.session_state:
+        st.session_state['model_trained'] = False
+
+    splitting_column, balance_column = st.columns(2)
+    with splitting_column:
+        st.subheader('Splitting Training and Testing Data')
+        st.caption('Data percentages to be used for testing the model')
+        st.slider('Percentage of test set', 1, 25, st.session_state.test_percentage, key='test_percentage', disabled=st.session_state['start_training'])
+    
+    with balance_column:
+        st.metric(label="Test Data", value=f"{st.session_state.test_percentage}%", delta=None)
+        st.toggle('Class Balancing', value=st.session_state.balance_data, key='to_perform_balance', on_change=update_balance_data, disabled=st.session_state['start_training'])
+        st.caption('Strategies for handling imbalanced data sets and to enhance machine learning model performance.')
+    
+    st.button("Start Training Model", on_click=start_training_model, type="primary", disabled=st.session_state['start_training'])
+
+    if st.session_state['start_training']:
+        with st.container():
+            st.header("Modeling")
+            X, Y = select_Y(DF, selected_Y)
+
+            # Balancing
+            if st.session_state.balance_data:
+                X_train_res, Y_train_res = check_and_balance(X, Y)
+            else:
+                X_train_res, Y_train_res = X, Y
+
+            # Splitting the data
+            X_train, X_test, Y_train, Y_test = split_data(X_train_res, Y_train_res, st.session_state.test_percentage / 100, 42, to_perform_pca)
+
+            # Decide model types:
+            if "decided_model" not in st.session_state:
+                st.session_state["decided_model"] = False
+            
+            if not st.session_state["decided_model"]:
+                with st.spinner("Deciding models based on data..."):
+                    shape_info, head_info, nunique_info, description_info = get_data_overview(DF)
+                    model_dict = decide_model(shape_info, head_info, nunique_info, description_info)
+                    model_list = get_selected_models(model_dict)
+                    st.session_state["decided_model"] = True
+
+            if st.session_state["decided_model"]:
+                st.success("Models selected based on your data!")
+                model_col1, model_col2, model_col3 = st.columns(3)
+                with model_col1:
+                    model1_name = get_model_name(model_list[0])
+                    st.subheader(model1_name)
+                    with st.spinner("Model training in progress..."):
+                        model1 = train_selected_model(X_train, Y_train, model_list[0])
+                    # Model metrics
+                    st.write(f"The accuracy of the {model1_name} is: ", f':green[**{model1.score(X_test, Y_test)}**]')
+                    st.pyplot(confusion_metrix(model1_name, model1, X_test, Y_test))
+                    if model_list[0] not in [1, 3]:
+                        fpr1, tpr1 = fpr_and_tpr(model1, X_test, Y_test)
+                        st.pyplot(roc(model1_name, fpr1, tpr1))
+                        st.write(f"The AUC of the {model1_name} is: ", f':green[**{auc(fpr1, tpr1)}**]')
+
+                with model_col2:
+                    model2_name = get_model_name(model_list[1])
+                    st.subheader(model2_name)
+                    with st.spinner("Model training in progress..."):
+                        model2 = train_selected_model(X_train, Y_train, model_list[1])
+                    # Model metrics
+                    st.write(f"The accuracy of the {model2_name} is: ", f':green[**{model2.score(X_test, Y_test)}**]')
+                    st.pyplot(confusion_metrix(model2_name, model2, X_test, Y_test))
+                    if model_list[1] not in [1, 3]:
+                        fpr2, tpr2 = fpr_and_tpr(model2, X_test, Y_test)
+                        st.pyplot(roc(model2_name, fpr2, tpr2))
+                        st.write(f"The AUC of the {model2_name} is: ", f':green[**{auc(fpr2, tpr2)}**]')
+                    
+                with model_col3:
+                    model3_name = get_model_name(model_list[2])
+                    st.subheader(model3_name)
+                    with st.spinner("Model training in progress..."):
+                        model3 = train_selected_model(X_train, Y_train, model_list[2])
+                    # Model metrics
+                    st.write(f"The accuracy of the {model3_name} is: ", f':green[**{model3.score(X_test, Y_test)}**]')
+                    st.pyplot(confusion_metrix(model3_name, model3, X_test, Y_test))
+                    if model_list[2] not in [1, 3]:
+                        fpr3, tpr3 = fpr_and_tpr(model3, X_test, Y_test)
+                        st.pyplot(roc(model3_name, fpr3, tpr3))
+                        st.write(f"The AUC of the {model3_name} is: ", f':green[**{auc(fpr3, tpr3)}**]')
+
+            st.divider()

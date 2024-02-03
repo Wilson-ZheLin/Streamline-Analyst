@@ -16,10 +16,12 @@ def start_training_model():
 
 def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     st.subheader('Data Overview')
-    st.dataframe(DF.describe())
-    st.pyplot(list_all(DF))
+    if 'data_origin' not in st.session_state:
+        st.session_state.data_origin = DF
+    st.dataframe(st.session_state.data_origin.describe())
+    st.pyplot(list_all(st.session_state.data_origin))
     st.subheader('Target Variable')
-    attributes = DF.columns.tolist()
+    attributes = st.session_state.data_origin.columns.tolist()
     selected_Y = st.selectbox(
         label = 'Select the target variable to predict:',
         options = attributes,
@@ -29,7 +31,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     
     # Data Imputation
     st.subheader('Handle and Impute Missing Values')
-    contain_null = contains_missing_value(DF)
+    contain_null = contains_missing_value(st.session_state.data_origin)
 
     if 'filled_df' not in st.session_state:
         if contain_null:
@@ -50,17 +52,18 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
         else:
             st.success("No missing values detected. Processing skipped.")
 
-    if contain_null and 'filled_df' in st.session_state:
+    if 'filled_df' in st.session_state:
         st.success("Missing value processing completed!")
-        st.download_button(
-            label="Download Data with Missing Values Imputed",
-            data=st.session_state.filled_df.to_csv(index=False).encode('utf-8'),
-            file_name="imputed_missing_values.csv",
-            mime='text/csv')
+        if contain_null:
+            st.download_button(
+                label="Download Data with Missing Values Imputed",
+                data=st.session_state.filled_df.to_csv(index=False).encode('utf-8'),
+                file_name="imputed_missing_values.csv",
+                mime='text/csv')
 
     # Data Encoding
     st.subheader("Process Data Encoding")
-    all_numeric = check_all_columns_numeric(DF)
+    all_numeric = check_all_columns_numeric(st.session_state.data_origin)
     
     if 'encoded_df' not in st.session_state:
         if not all_numeric:
@@ -78,31 +81,38 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
         else:
             st.success("All columns are numeric. Processing skipped.")
         
-    if not all_numeric and 'encoded_df' in st.session_state:
+    if 'encoded_df' in st.session_state:
         st.success("Data encoded completed using numeric mapping and one-hot!")
-        st.download_button(
-            label="Download Data Encoded",
-            data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
-            file_name="encoded_data.csv",
-            mime='text/csv')
+        if not all_numeric:
+            st.download_button(
+                label="Download Data Encoded",
+                data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
+                file_name="encoded_data.csv",
+                mime='text/csv')
     
     # Correlation Heatmap
-    if 'df_for_heatmap' not in st.session_state:
-        st.session_state.df_for_heatmap = DF
+    if 'df_cleaned1' not in st.session_state:
+        st.session_state.df_cleaned1 = DF
     st.subheader('Correlation between Attributes')
-    st.pyplot(correlation_matrix(st.session_state.df_for_heatmap))
+    st.pyplot(correlation_matrix(st.session_state.df_cleaned1))
 
     # Remove duplicate entities
     st.subheader('Remove Duplicate Entities')
-    DF = remove_duplicates(DF)
+    if 'df_cleaned2' not in st.session_state:
+        st.session_state.df_cleaned2 = remove_duplicates(st.session_state.df_cleaned1)
+        # DF = remove_duplicates(DF)
     st.info("Duplicate rows removed.")
     
     # PCA
     st.subheader('Principal Component Analysis')
     st.write("Deciding whether to perform PCA...")
-    to_perform_pca, n_components = decide_pca(DF.drop(columns=[selected_Y]))
-    if to_perform_pca:
-        DF = perform_pca(DF, n_components, selected_Y)
+    if 'df_pca' not in st.session_state:
+        to_perform_pca, n_components = decide_pca(st.session_state.df_cleaned2.drop(columns=[selected_Y]))
+        if 'to_perform_pca' not in st.session_state:
+            st.session_state.to_perform_pca = to_perform_pca
+        if st.session_state.to_perform_pca:
+            st.session_state.df_pca = perform_pca(st.session_state.df_cleaned2, n_components, selected_Y)
+            # DF = perform_pca(DF, n_components, selected_Y)
     st.success("Completed!")
 
     # Splitting and Balancing
@@ -133,7 +143,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
     if st.session_state['start_training']:
         with st.container():
             st.header("Modeling")
-            X, Y = select_Y(DF, selected_Y)
+            X, Y = select_Y(st.session_state.df_pca, selected_Y)
 
             # Balancing
             if st.session_state.balance_data:
@@ -142,7 +152,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
                 X_train_res, Y_train_res = X, Y
 
             # Splitting the data
-            X_train, X_test, Y_train, Y_test = split_data(X_train_res, Y_train_res, st.session_state.test_percentage / 100, 42, to_perform_pca)
+            X_train, X_test, Y_train, Y_test = split_data(X_train_res, Y_train_res, st.session_state.test_percentage / 100, 42, st.session_state.to_perform_pca)
 
             # Decide model types:
             if "decided_model" not in st.session_state:
@@ -150,51 +160,53 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
             
             if not st.session_state["decided_model"]:
                 with st.spinner("Deciding models based on data..."):
-                    shape_info, head_info, nunique_info, description_info = get_data_overview(DF)
+                    shape_info, head_info, nunique_info, description_info = get_data_overview(st.session_state.df_pca)
                     model_dict = decide_model(shape_info, head_info, nunique_info, description_info)
                     model_list = get_selected_models(model_dict)
+                    if 'model_list' not in st.session_state:
+                        st.session_state.model_list = model_list
                     st.session_state["decided_model"] = True
 
             if st.session_state["decided_model"]:
                 st.success("Models selected based on your data!")
                 model_col1, model_col2, model_col3 = st.columns(3)
                 with model_col1:
-                    model1_name = get_model_name(model_list[0])
+                    model1_name = get_model_name(st.session_state.model_list[0])
                     st.subheader(model1_name)
                     with st.spinner("Model training in progress..."):
-                        model1 = train_selected_model(X_train, Y_train, model_list[0])
+                        model1 = train_selected_model(X_train, Y_train, st.session_state.model_list[0])
                     # Model metrics
-                    st.write(f"The accuracy of the {model1_name} is: ", f':green[**{model1.score(X_test, Y_test)}**]')
+                    st.write(f"The accuracy of the {model1_name} is: ", f'\n:green[**{model1.score(X_test, Y_test)}**]')
                     st.pyplot(confusion_metrix(model1_name, model1, X_test, Y_test))
-                    if model_list[0] not in [1, 3]:
+                    if st.session_state.model_list[0] not in [1, 3]:
                         fpr1, tpr1 = fpr_and_tpr(model1, X_test, Y_test)
                         st.pyplot(roc(model1_name, fpr1, tpr1))
-                        st.write(f"The AUC of the {model1_name} is: ", f':green[**{auc(fpr1, tpr1)}**]')
+                        st.write(f"The AUC of the {model1_name} is: ", f'\n:green[**{auc(fpr1, tpr1)}**]')
 
                 with model_col2:
-                    model2_name = get_model_name(model_list[1])
+                    model2_name = get_model_name(st.session_state.model_list[1])
                     st.subheader(model2_name)
                     with st.spinner("Model training in progress..."):
-                        model2 = train_selected_model(X_train, Y_train, model_list[1])
+                        model2 = train_selected_model(X_train, Y_train, st.session_state.model_list[1])
                     # Model metrics
-                    st.write(f"The accuracy of the {model2_name} is: ", f':green[**{model2.score(X_test, Y_test)}**]')
+                    st.write(f"The accuracy of the {model2_name} is: ", f'\n:green[**{model2.score(X_test, Y_test)}**]')
                     st.pyplot(confusion_metrix(model2_name, model2, X_test, Y_test))
-                    if model_list[1] not in [1, 3]:
+                    if st.session_state.model_list[1] not in [1, 3]:
                         fpr2, tpr2 = fpr_and_tpr(model2, X_test, Y_test)
                         st.pyplot(roc(model2_name, fpr2, tpr2))
-                        st.write(f"The AUC of the {model2_name} is: ", f':green[**{auc(fpr2, tpr2)}**]')
+                        st.write(f"The AUC of the {model2_name} is: ", f'\n:green[**{auc(fpr2, tpr2)}**]')
                     
                 with model_col3:
-                    model3_name = get_model_name(model_list[2])
+                    model3_name = get_model_name(st.session_state.model_list[2])
                     st.subheader(model3_name)
                     with st.spinner("Model training in progress..."):
-                        model3 = train_selected_model(X_train, Y_train, model_list[2])
+                        model3 = train_selected_model(X_train, Y_train, st.session_state.model_list[2])
                     # Model metrics
-                    st.write(f"The accuracy of the {model3_name} is: ", f':green[**{model3.score(X_test, Y_test)}**]')
+                    st.write(f"The accuracy of the {model3_name} is: ", f'\n:green[**{model3.score(X_test, Y_test)}**]')
                     st.pyplot(confusion_metrix(model3_name, model3, X_test, Y_test))
-                    if model_list[2] not in [1, 3]:
+                    if st.session_state.model_list[2] not in [1, 3]:
                         fpr3, tpr3 = fpr_and_tpr(model3, X_test, Y_test)
                         st.pyplot(roc(model3_name, fpr3, tpr3))
-                        st.write(f"The AUC of the {model3_name} is: ", f':green[**{auc(fpr3, tpr3)}**]')
+                        st.write(f"The AUC of the {model3_name} is: ", f'\n:green[**{auc(fpr3, tpr3)}**]')
 
             st.divider()

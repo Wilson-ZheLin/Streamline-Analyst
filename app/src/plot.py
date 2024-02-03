@@ -30,6 +30,7 @@ def correlation_matrix(df):
     sns.heatmap(df.corr(), annot=True, cmap='viridis', annot_kws={"size": 12})
     return plt.gcf()
 
+@st.cache_data
 def list_all(df, max_plots=16):
 
     # Calculate the number of plots to display (up to 16)

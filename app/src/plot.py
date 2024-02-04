@@ -1,5 +1,6 @@
 import seaborn as sns
 import numpy as np
+import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
@@ -7,22 +8,25 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
 
 def distribution_histogram(df, attribute):
-    plt.figure()
-    sns.distplot(df[attribute])
-    plt.title(f"Distribution of {attribute}")
-    plt.show()
+    if df[attribute].dtype == 'object' or pd.api.types.is_categorical_dtype(df[attribute]):
+        codes, uniques = pd.factorize(df[attribute])
+        temp_df = pd.DataFrame({attribute: codes})
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.histplot(temp_df[attribute], ax=ax, discrete=True)
+        ax.set_xticks(range(len(uniques)))
+        ax.set_xticklabels(uniques, rotation=45, ha='right')
+    else:
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.histplot(df[attribute], ax=ax)
+
+    ax.set_title(f"Distribution of {attribute}")
+    return fig
 
 def distribution_boxplot(df, attribute):
-    plt.figure()
-    sns.boxenplot(data = df[attribute], palette = ["#32936f","#26a96c","#2bc016"])
-    plt.title(f"Boxplot of {attribute}")
-    plt.show()
-
-def scatter_plot(df, attribute):
-    plt.figure()
-    sns.scatterplot(data = df, x = attribute[0], y = attribute[1])
-    plt.title(f"Scatter plot of {attribute[0]} and {attribute[1]}")
-    plt.show()
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.boxenplot(data=df.attribute, palette=["#32936f", "#26a96c", "#2bc016"])
+    ax.set_title(f"Boxplot of {attribute}")
+    return fig
 
 @st.cache_data
 def correlation_matrix(df):
@@ -63,30 +67,11 @@ def list_all(df, max_plots=16):
 
 import plotly.express as px
 
-def count_Y(df, Y_name, mapping = None):
-    """
-    Display the distribution of the target variable in a pie chart using matplotlib.
-    Applies a mapping to the labels if provided.
-
-    Args:
-    df (DataFrame): The DataFrame containing the data.
-    Y_name (str): The name of the target variable.
-    mapping (dict, optional): A dictionary to map the target variable's values.
-    """
+def count_Y(df, Y_name):
     if Y_name in df.columns and df[Y_name].nunique() >= 1:
-        
-        mapped_data = df[Y_name].map(mapping[Y_name]) if mapping and Y_name in mapping else df[Y_name]
-        value_counts = mapped_data.value_counts()
-        
-        plt.figure(figsize=(8, 8))
-        plt.pie(value_counts, labels=value_counts.index, startangle=90, autopct='%1.1f%%')
-        plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-        plt.title(f'Distribution of {Y_name}')
-        plt.show()
-
-        # value_counts = df[Y_name].value_counts()
-        # fig = px.pie(names=value_counts.index, values=value_counts.values, hole=0.5)
-        # fig.show()
+        value_counts = df[Y_name].value_counts()
+        fig = px.pie(names=value_counts.index, values=value_counts.values, title=f'Distribution of {Y_name}', hole=0.5, color_discrete_sequence=px.colors.sequential.Cividis_r)
+        return fig
 
 def confusion_metrix(model_name, model, X_test, Y_test):
     Y_pred = model.predict(X_test)

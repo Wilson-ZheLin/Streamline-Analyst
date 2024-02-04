@@ -3,6 +3,7 @@ from streamlit_lottie import st_lottie
 from util import load_lottie, stream_data
 from prediction_model import prediction_model_pipeline
 from cluster_model import cluster_model_pipeline
+from visualization import data_visualization
 from src.util import read_file_from_streamlit
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
@@ -49,7 +50,7 @@ with st.container():
             placeholder="Enter your API key here...",
         )
         st.write("👆Your OpenAI API key:")
-        uploaded_file = st.file_uploader("Choose a data file", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
+        uploaded_file = st.file_uploader("Choose a data file. Your data won't be stored as well!", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
         if uploaded_file:
             DF = read_file_from_streamlit(uploaded_file)
         
@@ -60,19 +61,19 @@ with st.container():
 
         MODE = st.selectbox(
         'Select proper data analysis mode',
-        ('Predictive Classification', 'Clustering Model'))
+        ('Predictive Classification', 'Clustering Model', 'Data Visualization'))
         
         st.write(f'Model selected: :green[{SELECTED_MODEL}]')
         st.write(f'Data analysis mode: :green[{MODE}]')
 
     # Proceed Button
-    is_proceed_enabled = uploaded_file is not None and API_KEY != ""
+    is_proceed_enabled = uploaded_file is not None and API_KEY != "" or uploaded_file is not None and MODE == "Data Visualization"
 
     # Initialize the 'button_clicked' state
     if 'button_clicked' not in st.session_state:
         st.session_state.button_clicked = False
 
-    if st.button('Start Analysis', disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"):
+    if st.button('Start Analysis', disabled=not is_proceed_enabled or st.session_state.button_clicked, type="primary"):
         st.session_state.button_clicked = True
 
     if st.session_state.button_clicked:
@@ -82,4 +83,6 @@ with st.container():
                 prediction_model_pipeline(DF, API_KEY, GPT_MODEL)
             elif MODE == 'Clustering Model':
                 cluster_model_pipeline(DF, API_KEY, GPT_MODEL)
+            elif MODE == 'Data Visualization':
+                data_visualization(DF)
 

@@ -34,10 +34,13 @@ def perform_pca(df, n_components, Y_name):
     Perform PCA on a given DataFrame.
     """
     # Save the target column data
-    target_data = df[Y_name]
+    drop_columns = []
+    if Y_name:
+        target_data = df[Y_name]
+        drop_columns.append(Y_name)
 
     # Remove non-numeric columns and the target column
-    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=[Y_name], errors='ignore')
+    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors='ignore')
 
     # Standardizing the Data
     scaler = StandardScaler()
@@ -52,7 +55,8 @@ def perform_pca(df, n_components, Y_name):
     pca_df = pd.DataFrame(data=principal_components, columns=columns)
 
     # Reattach the target column
-    pca_df[Y_name] = target_data.reset_index(drop=True)
-    pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
+    if Y_name:
+        pca_df[Y_name] = target_data.reset_index(drop=True)
+        pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
 
     return pca_df

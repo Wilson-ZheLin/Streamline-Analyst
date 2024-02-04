@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from collections import Counter
 from joblib import dump
 from imblearn.over_sampling import RandomOverSampler
-from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_curve, silhouette_score, calinski_harabasz_score, davies_bouldin_score, f1_score
 from sklearn.model_selection import train_test_split
 
 def save_model(model):
@@ -39,6 +39,10 @@ def split_data(X, Y, test_size = 0.2, random_state = 42, perform_pca = False):
 
     return X_train, X_test, Y_train, Y_test
 
+def standardize_data(X):
+    scaler = StandardScaler()
+    return scaler.fit_transform(X)
+
 def check_and_balance(X, Y, balance_threshold=0.5):
     """
     Check if the dataset is imbalanced and perform oversampling if necessary.
@@ -66,3 +70,24 @@ def check_and_balance(X, Y, balance_threshold=0.5):
         return X_resampled, Y_resampled
     else:
         return X, Y
+    
+def calculate_f1_score(model, X_test, Y_test, binary_classification=True):
+    y_pred = model.predict(X_test)
+    if binary_classification:
+        f1 = f1_score(Y_test, y_pred, average='binary')
+    else:
+        f1 = f1_score(Y_test, y_pred, average='macro')
+    return f1
+    
+def calculate_silhouette_score(X, labels):
+    return silhouette_score(X, labels)
+
+def calculate_calinski_harabasz_score(X, labels):
+    return calinski_harabasz_score(X, labels)
+
+def calculate_davies_bouldin_score(X, labels):
+    return davies_bouldin_score(X, labels)
+
+def gmm_predict(X, model):
+    labels = model.predict(X)
+    return labels

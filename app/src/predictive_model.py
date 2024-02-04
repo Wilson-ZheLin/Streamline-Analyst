@@ -1,32 +1,24 @@
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
 def train_selected_model(X_train, Y_train, model_type, model_params=None):
     if model_type == 1:
-        return LinearRegression_train(X_train, Y_train, model_params)
-    elif model_type == 2:
         return LogisticRegression_train(X_train, Y_train, model_params)
-    elif model_type == 3:
+    elif model_type == 2:
         return SVM_train(X_train, Y_train, model_params)
-    elif model_type == 4:
+    elif model_type == 3:
         return NaiveBayes_train(X_train, Y_train, model_params)
-    elif model_type == 5:
+    elif model_type == 4:
         return RandomForest_train(X_train, Y_train, model_params=model_params)
-    elif model_type == 6:
+    elif model_type == 5:
         return AdaBoost_train(X_train, Y_train, model_params)
-    elif model_type == 7:
+    elif model_type == 6:
         return XGBoost_train(X_train, Y_train, model_params)
-    elif model_type == 8:
+    elif model_type == 7:
         return GradientBoosting_train(X_train, Y_train, model_params)
-
-def LinearRegression_train(X_train, Y_train, model_params=None):
-    if model_params is None: model_params = {}
-    lr = LinearRegression(**model_params)
-    lr.fit(X_train, Y_train)
-    return lr
 
 def LogisticRegression_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}

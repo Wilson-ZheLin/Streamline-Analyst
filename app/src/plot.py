@@ -3,6 +3,7 @@ import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
+from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
 
 def distribution_histogram(df, attribute):
@@ -107,4 +108,17 @@ def roc(model_name, fpr, tpr):
     plt.title(f'ROC Curve - {model_name}')
     plt.legend(loc='best')
     plt.xticks(rotation=45)
+    return fig
+
+def plot_clusters(X, labels):
+    sns.set(style="whitegrid")
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X)
+    fig, ax = plt.subplots()
+    for label in set(labels):
+        idx = labels == label
+        ax.scatter(X_pca[idx, 0], X_pca[idx, 1], label=f'Cluster {label}', s=50)
+    
+    ax.set_title('Cluster Scatter Plot')
+    ax.legend()
     return fig

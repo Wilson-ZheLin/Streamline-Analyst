@@ -1,7 +1,8 @@
 import streamlit as st
 from streamlit_lottie import st_lottie
-from util import load_lottie, stream_data, developer_info
+from util import load_lottie, stream_data
 from prediction_model import prediction_model_pipeline
+from cluster_model import cluster_model_pipeline
 from src.util import read_file_from_streamlit
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
@@ -48,18 +49,22 @@ with st.container():
             placeholder="Enter your API key here...",
         )
         st.write("👆Your OpenAI API key:")
-        # if API_KEY:
-        #     st.write("You entered: ", API_KEY)
+        uploaded_file = st.file_uploader("Choose a data file", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
+        if uploaded_file:
+            DF = read_file_from_streamlit(uploaded_file)
+        
     with right_column:
         SELECTED_MODEL = st.selectbox(
         'Which OpenAI model do you want to use?',
         ('GPT-4-Turbo', 'GPT-3.5-Turbo'))
-        st.write(f'You selected: :green[{SELECTED_MODEL}]')   
 
-    uploaded_file = st.file_uploader("Choose a data file", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
-    if uploaded_file:
-        DF = read_file_from_streamlit(uploaded_file)
+        MODE = st.selectbox(
+        'Select proper data analysis mode',
+        ('Predictive Classification', 'Clustering Model'))
         
+        st.write(f'Model selected: :green[{SELECTED_MODEL}]')
+        st.write(f'Data analysis mode: :green[{MODE}]')
+
     # Proceed Button
     is_proceed_enabled = uploaded_file is not None and API_KEY != ""
 
@@ -73,5 +78,8 @@ with st.container():
     if st.session_state.button_clicked:
         GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 3.5
         with st.container():
-            prediction_model_pipeline(DF, API_KEY, GPT_MODEL)
+            if MODE == 'Predictive Classification':
+                prediction_model_pipeline(DF, API_KEY, GPT_MODEL)
+            elif MODE == 'Clustering Model':
+                cluster_model_pipeline(DF, API_KEY, GPT_MODEL)
 

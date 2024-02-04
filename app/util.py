@@ -16,8 +16,9 @@ def load_lottie(url = config_data['lottie_url']):
 def stream_data(line):
     for word in line.split():
         yield word + " "
-        time.sleep(random.uniform(0.03, 0.08))
+        time.sleep(random.uniform(0.02, 0.05))
     time.sleep(0.5)
 
 def developer_info():
+    time.sleep(1)
     st.write(stream_data(":grey[Streamline Analyst is developed by Zhe Lin. You can reach out to me via] :blue[wilson.linzhe@gmail.com] :grey[or] :blue[[GitHub](https://github.com/Wilson-ZheLin)]"))

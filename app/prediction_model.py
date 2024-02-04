@@ -5,9 +5,9 @@ from src.handle_null_value import contains_missing_value, remove_high_null, fill
 from src.preprocess import convert_to_numeric, remove_rows_with_empty_target, remove_duplicates
 from src.llm_service import decide_fill_null, decide_encode_type, decide_model
 from src.pca import decide_pca, perform_pca
-from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc, save_model
+from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc, save_model, calculate_f1_score
 from src.predictive_model import train_selected_model
-from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name
+from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name, count_unique
 
 def update_balance_data():
     st.session_state.balance_data = st.session_state.to_perform_balance
@@ -20,7 +20,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
-    st.dataframe(st.session_state.data_origin.describe())
+    st.dataframe(st.session_state.data_origin.describe(), width=1200)
     st.pyplot(list_all(st.session_state.data_origin))
     st.subheader('Target Variable')
     attributes = st.session_state.data_origin.columns.tolist()
@@ -128,10 +128,12 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
         st.session_state["start_training"] = False
     if 'model_trained' not in st.session_state:
         st.session_state['model_trained'] = False
+    if 'is_binary' not in st.session_state:
+        st.session_state['is_binary'] = count_unique(st.session_state.df_pca, selected_Y) == 2
 
     splitting_column, balance_column = st.columns(2)
     with splitting_column:
-        st.subheader('Splitting Training and Testing Data')
+        st.subheader('Data Splitting')
         st.caption('Data percentages to be used for testing the model')
         st.slider('Percentage of test set', 1, 25, st.session_state.test_percentage, key='test_percentage', disabled=st.session_state['start_training'])
     
@@ -212,7 +214,8 @@ def display_results(X_train, X_test, Y_train, Y_test):
         # Model metrics
         st.write(f"The accuracy of the {st.session_state.model1_name}: ", f'\n:green[**{st.session_state.model1.score(X_test, Y_test)}**]')
         st.pyplot(confusion_metrix(st.session_state.model1_name, st.session_state.model1, X_test, Y_test))
-        if st.session_state.model_list[0] not in [1, 3]:
+        st.write("F1 Score: ", f':green[**{calculate_f1_score(st.session_state.model1, X_test, Y_test, st.session_state.is_binary)}**]')
+        if st.session_state.model_list[0] != 2 and st.session_state['is_binary']:
             if 'fpr1' not in st.session_state:
                 fpr1, tpr1 = fpr_and_tpr(st.session_state.model1, X_test, Y_test)
                 st.session_state.fpr1 = fpr1
@@ -231,7 +234,8 @@ def display_results(X_train, X_test, Y_train, Y_test):
         # Model metrics
         st.write(f"The accuracy of the {st.session_state.model2_name}: ", f'\n:green[**{st.session_state.model2.score(X_test, Y_test)}**]')
         st.pyplot(confusion_metrix(st.session_state.model2_name, st.session_state.model2, X_test, Y_test))
-        if st.session_state.model_list[1] not in [1, 3]:
+        st.write("F1 Score: ", f':green[**{calculate_f1_score(st.session_state.model2, X_test, Y_test, st.session_state.is_binary)}**]')
+        if st.session_state.model_list[1] != 2 and st.session_state['is_binary']:
             if 'fpr2' not in st.session_state:
                 fpr2, tpr2 = fpr_and_tpr(st.session_state.model2, X_test, Y_test)
                 st.session_state.fpr2 = fpr2
@@ -250,7 +254,8 @@ def display_results(X_train, X_test, Y_train, Y_test):
         # Model metrics
         st.write(f"The accuracy of the {st.session_state.model3_name}: ", f'\n:green[**{st.session_state.model3.score(X_test, Y_test)}**]')
         st.pyplot(confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test))
-        if st.session_state.model_list[2] not in [1, 3]:
+        st.write("F1 Score: ", f':green[**{calculate_f1_score(st.session_state.model3, X_test, Y_test, st.session_state.is_binary)}**]')
+        if st.session_state.model_list[2] != 2 and st.session_state['is_binary']:
             if 'fpr3' not in st.session_state:
                 fpr3, tpr3 = fpr_and_tpr(st.session_state.model3, X_test, Y_test)
                 st.session_state.fpr3 = fpr3

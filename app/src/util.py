@@ -96,7 +96,7 @@ def get_data_overview(df):
 def separate_decode_list(decided_dict, Y_name):
     convert_int_cols = [key for key, value in decided_dict.items() if value == 1]
     one_hot_cols = [key for key, value in decided_dict.items() if value == 2]
-    if Y_name in one_hot_cols:
+    if Y_name and Y_name in one_hot_cols:
         one_hot_cols.remove(Y_name)
         convert_int_cols.append(Y_name)
     return convert_int_cols, one_hot_cols
@@ -129,6 +129,9 @@ def get_model_name(model_no):
         return "XGBoost"
     elif model_no == 8:
         return "Grandient Boost"
+    
+def count_unique(df, Y):
+    return df[Y].nunique()
 
 if __name__ == '__main__':
     path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/survey lung cancer.csv"

@@ -1,4 +1,5 @@
 import streamlit as st
+from util import developer_info
 from src.plot import list_all, distribution_histogram, distribution_boxplot, count_Y
 
 def data_visualization(DF):
@@ -38,6 +39,7 @@ def data_visualization(DF):
         elif plot_type == 'Donut chart':
             fig = count_Y(DF, att)
             plot_area.plotly_chart(fig)
+        st.session_state.all_set = True
     
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
@@ -46,3 +48,6 @@ def data_visualization(DF):
     if 'overall_plot' not in st.session_state:
         st.session_state.overall_plot = list_all(st.session_state.data_origin)
     st.pyplot(st.session_state.overall_plot)
+
+    st.divider()
+    if "all_set" in st.session_state and st.session_state["all_set"]: developer_info()

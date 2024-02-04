@@ -71,6 +71,7 @@ with st.container():
         st.session_state.button_clicked = True
 
     if st.session_state.button_clicked:
+        GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 3.5
         with st.container():
-            prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL)
+            prediction_model_pipeline(DF, API_KEY, GPT_MODEL)
 

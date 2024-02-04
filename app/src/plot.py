@@ -51,7 +51,7 @@ def list_all(df, max_plots=16):
 
     # Display the histograms
     for i, column in enumerate(df.columns[:num_plots]):
-        sns.histplot(ax=axes[i], data=df, x=column, color='#25a0ff')
+        sns.histplot(ax=axes[i], data=df, x=column, color='#1867ac')
 
     # Hide additional subplots
     for ax in axes[num_plots:]: ax.axis('off')

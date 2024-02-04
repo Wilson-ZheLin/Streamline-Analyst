@@ -15,7 +15,7 @@ def update_balance_data():
 def start_training_model():
     st.session_state["start_training"] = True
 
-def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
+def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
     st.divider()
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
@@ -43,7 +43,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
                 filled_df = remove_rows_with_empty_target(filled_df, selected_Y)
                 st.write("Large language model analysis...")
                 attributes, types_info, description_info = contain_null_attributes_info(filled_df)
-                fill_result_dict = decide_fill_null(attributes, types_info, description_info)
+                fill_result_dict = decide_fill_null(attributes, types_info, description_info, GPT_MODEL, API_KEY)
                 st.write("Imputing missing values...")
                 mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)
                 filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list)
@@ -72,7 +72,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
             with st.status("Encoding non-numeric data using **numeric mapping** and **one-hot**...", expanded=True) as status:
                 non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(DF)
                 st.write("Large language model analysis...")
-                encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head)
+                encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head, GPT_MODEL, API_KEY)
                 st.write("Encoding the data...")
                 convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, selected_Y)
                 encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols)
@@ -165,7 +165,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
             if not st.session_state["decided_model"]:
                 with st.spinner("Deciding models based on data..."):
                     shape_info, head_info, nunique_info, description_info = get_data_overview(st.session_state.df_pca)
-                    model_dict = decide_model(shape_info, head_info, nunique_info, description_info)
+                    model_dict = decide_model(shape_info, head_info, nunique_info, description_info, GPT_MODEL, API_KEY)
                     model_list = get_selected_models(model_dict)
                     if 'model_list' not in st.session_state:
                         st.session_state.model_list = model_list
@@ -185,7 +185,7 @@ def prediction_model_pipeline(DF, API_KEY, SELECTED_MODEL):
                     st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
 
     st.divider()
-    if st.session_state["all_set"]: developer_info()
+    if "all_set" in st.session_state and st.session_state["all_set"]: developer_info()
 
 def display_results(X_train, X_test, Y_train, Y_test):
     st.success("Models selected based on your data!")

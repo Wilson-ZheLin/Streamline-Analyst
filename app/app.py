@@ -52,7 +52,12 @@ with st.container():
         st.write("👆Your OpenAI API key:")
         uploaded_file = st.file_uploader("Choose a data file. Your data won't be stored as well!", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
         if uploaded_file:
-            DF = read_file_from_streamlit(uploaded_file)
+            if uploaded_file.getvalue():
+                uploaded_file.seek(0)
+                st.session_state.DF_uploaded = read_file_from_streamlit(uploaded_file)
+                st.session_state.is_file_empty = False
+            else:
+                st.session_state.is_file_empty = True
         
     with right_column:
         SELECTED_MODEL = st.selectbox(
@@ -75,14 +80,18 @@ with st.container():
 
     if st.button('Start Analysis', disabled=not is_proceed_enabled or st.session_state.button_clicked, type="primary"):
         st.session_state.button_clicked = True
+    if "is_file_empty" in st.session_state and st.session_state.is_file_empty:
+        st.caption('Your data file is empty!')
 
     if st.session_state.button_clicked:
         GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 3.5
         with st.container():
-            if MODE == 'Predictive Classification':
-                prediction_model_pipeline(DF, API_KEY, GPT_MODEL)
-            elif MODE == 'Clustering Model':
-                cluster_model_pipeline(DF, API_KEY, GPT_MODEL)
-            elif MODE == 'Data Visualization':
-                data_visualization(DF)
-
+            if "DF_uploaded" not in st.session_state:
+                st.error("File is empty!")
+            else:
+                if MODE == 'Predictive Classification':
+                    prediction_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                elif MODE == 'Clustering Model':
+                    cluster_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                elif MODE == 'Data Visualization':
+                    data_visualization(st.session_state.DF_uploaded)

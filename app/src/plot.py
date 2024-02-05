@@ -2,10 +2,13 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 import streamlit as st
+import nltk
+from nltk import regexp_tokenize
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.decomposition import PCA
+from wordcloud import WordCloud
 from sklearn.metrics import confusion_matrix
 
 # Single attribute visualization
@@ -236,3 +239,38 @@ def plot_clusters(X, labels):
     ax.set_title('Cluster Scatter Plot')
     ax.legend()
     return fig
+
+# Advanced Visualization
+@st.cache_data
+def word_cloud_plot(text):
+    try:
+        words = regexp_tokenize(text, pattern='\w+')
+        text_dist = nltk.FreqDist([w for w in words])
+        wordcloud = WordCloud(width=1200, height=600, background_color ='white').generate_from_frequencies(text_dist)
+        fig, ax = plt.subplots(figsize=(10, 7.5))
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis('off')
+        return fig
+    except:
+        return -1
+
+@st.cache_data
+def world_map(df, country_column, key_attribute):
+    try:
+        hover_data_columns = [col for col in df.columns if col != country_column]
+        fig = px.choropleth(df, locations="iso_alpha",
+                            color=key_attribute, 
+                            hover_name=country_column,
+                            hover_data=hover_data_columns,
+                            color_continuous_scale=px.colors.sequential.Cividis,
+                            projection="equirectangular",)
+        return fig
+    except:
+        return -1
+
+@st.cache_data
+def scatter_3d(df, x, y, z):
+    try:
+        return px.scatter_3d(df, x=x, y=y, z=z, color=z, color_continuous_scale=px.colors.sequential.Viridis)
+    except:
+        return -1

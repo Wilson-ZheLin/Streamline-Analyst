@@ -114,20 +114,18 @@ def get_selected_models(model_dict):
 
 def get_model_name(model_no):
     if model_no == 1:
-        return "Linear Regression"
-    elif model_no == 2:
         return "Logistic Regression"
-    elif model_no == 3:
+    elif model_no == 2:
         return "SVM"
-    elif model_no == 4:
+    elif model_no == 3:
         return "Naive Bayes"
-    elif model_no == 5:
+    elif model_no == 4:
         return "Random Forest"
-    elif model_no == 6:
+    elif model_no == 5:
         return "ADA Boost"
-    elif model_no == 7:
+    elif model_no == 6:
         return "XGBoost"
-    elif model_no == 8:
+    elif model_no == 7:
         return "Grandient Boost"
     
 def count_unique(df, Y):

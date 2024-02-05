@@ -20,5 +20,5 @@ def stream_data(line):
     time.sleep(0.5)
 
 def developer_info():
-    time.sleep(1)
-    st.write(stream_data(":grey[Streamline Analyst is developed by Zhe Lin. You can reach out to me via] :blue[wilson.linzhe@gmail.com] :grey[or] :blue[[GitHub](https://github.com/Wilson-ZheLin)]"))
+    time.sleep(2)
+    st.write(stream_data(":grey[Streamline Analyst is developed by *Zhe Lin*. You can reach out to me via] :blue[wilson.linzhe@gmail.com] :grey[or] :blue[[GitHub](https://github.com/Wilson-ZheLin)]"))

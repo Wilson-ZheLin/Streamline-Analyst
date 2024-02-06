@@ -17,7 +17,7 @@ def stream_data(line):
     for word in line.split():
         yield word + " "
         time.sleep(random.uniform(0.02, 0.05))
-    time.sleep(0.5)
+    # time.sleep(0.5)
 
 def developer_info():
     time.sleep(2)

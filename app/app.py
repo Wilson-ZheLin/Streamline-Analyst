@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from streamlit_lottie import st_lottie
 from util import load_lottie, stream_data
 from prediction_model import prediction_model_pipeline
@@ -16,6 +17,7 @@ with st.container():
         st.session_state.initialized = True
     if st.session_state.initialized:
         st.write(stream_data("This is an application for Streamline Analyst."))
+        time.sleep(0.5)
         st.write(stream_data("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)"))
         st.session_state.initialized = False
     else:

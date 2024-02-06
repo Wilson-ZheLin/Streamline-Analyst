@@ -19,3 +19,12 @@ decide_model_template: |
   The description of the data frame is:
   {description_info}
   The data has been cleaned and preprocessed, nulls filled, and encoded ready to train the machine learning model. According to the data information provided, please help me decide which machine learning models should be used for classification prediction. Model options are: 1:LogisticRegression, 2:SVC, 3:GaussianNB, 4:RandomForestClassifier, 5:AdaBoostClassifier, 6:XGBClassifier, 7:GradientBoostingClassifier. Please select three models to take into account different model performance indicators. Only the data is returned in json format without any other explanation or content. Sample response: {{"model1":1,"model2":4,"model3":6}}
+decide_target_attribute_template: |
+  You are a data analyst. You are trying to find out which attribute is the target attribute from the data frame. The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The head(10) of the data frame is:
+  {head_info}
+  Determine the target attribute to predict based on the data information provided. Only the data is returned in json format without any other explanation or content. Sample response: {{"target":"species"}}
+  If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
+decide_test_ratio_template: |
+  You are a data analyst. You are trying to split the data frame into training set and test set. The shape of my data frame is {shape_info}. Determine the test set ratio based on the shape information provided and it's assumed that the categories of the target variable are balanced. The test set ratio range is 0.01 to 0.25. Only the data is returned in json format without any other explanation or content. Sample response: {{"test_ratio":0.25}}

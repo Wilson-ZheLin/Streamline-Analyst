@@ -86,6 +86,14 @@ def contain_null_attributes_info(df):
 
     return attributes, types_info, description_info
 
+def attribute_info(df):
+    attributes = df.columns.tolist()
+    dtypes_df = df.dtypes
+    types_info = "\n".join([f"{index}:{dtype}" for index, dtype in dtypes_df.items()])
+    head_info = df.head(10).to_csv()
+
+    return attributes, types_info, head_info
+
 def get_data_overview(df):
     shape_info = str(df.shape)
     head_info = df.head().to_csv()

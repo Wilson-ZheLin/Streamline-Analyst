@@ -16,9 +16,10 @@ def initial(df):
     print(description, '\n')
     print(null_info.sum(), '\n')
 
-def convert_to_numeric(df, convert_int_cols_list, one_hot_cols_list):
+def convert_to_numeric(df, convert_int_cols_list, one_hot_cols_list, drop_cols):
     df, int_mapping = convert_to_integer(df, convert_int_cols_list)
     df, one_hot_mapping = convert_to_one_hot(df, one_hot_cols_list)
+    df = df.drop(columns=drop_cols, errors='ignore')
     mappings = {'integer_mappings': int_mapping, 'one_hot_mappings': one_hot_mapping}
     return df, mappings
 

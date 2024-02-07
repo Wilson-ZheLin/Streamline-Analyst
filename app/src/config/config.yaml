@@ -4,7 +4,7 @@ model3_name: "gpt-3.5-turbo-1106"
 numeric_attribute_template: |
   You are a data analyst. You are cleaning the data and processing the attributes in the data that are not numeric. The columns to be processed include: {attributes}. The first 20 items of these data are as follows:
   {data_frame_head}
-  Please help me decide whether each attribute should be processed as integer mapping or one-hot encoding based on content and semantics. Integer mapping is represented by 1, and one-hot encoding is represented by 2. Only the data is returned in json format without any other explanation or content. Sample response: {{"color":2,"size":1,"country":2,"brand":2,"gender":1}}
+  Please help me decide whether each attribute should be processed as integer mapping or one-hot encoding based on content and semantics. If there's an attribute containing long text, consider dropping it. Integer mapping is represented by 1, one-hot encoding is represented by 2, and dropping the attribute is represented by 3. Only the data is returned in json format without any other explanation or content. Sample response: {{"color":2,"size":1,"country":2,"brand":2,"gender":1,"comments":3}}
 null_attribute_template: |
   You are a data analyst. You are preprocessing the attributes in the data that contain null values. The columns to be processed include: {attributes}. The types of these attributes are:
   {types_info}
@@ -28,3 +28,8 @@ decide_target_attribute_template: |
   If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
 decide_test_ratio_template: |
   You are a data analyst. You are trying to split the data frame into training set and test set. The shape of my data frame is {shape_info}. Determine the test set ratio based on the shape information provided and it's assumed that the categories of the target variable are balanced. The test set ratio range is 0.01 to 0.25. Only the data is returned in json format without any other explanation or content. Sample response: {{"test_ratio":0.25}}
+decide_balance_template: |
+  You are a data analyst. You have a cleaned and pre-processed data frame and you want to handleclass imbalance before training the machine learning model. The shape of my data frame is {shape_info}. The description of the data frame is:
+  {description_info}
+  The number of each value of the target attribute is: {balance_info}
+  Determine the balance strategy based on the data information provided. The RandomOverSampler is represented by 1, the SMOTE is represented by 2, the ADASYN is represented by 3, and do not balance is represented by 4. Only the data is returned in json format without any other explanation or content. Sample response: {{"method":2}}

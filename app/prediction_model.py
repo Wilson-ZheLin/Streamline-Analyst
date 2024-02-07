@@ -1,13 +1,13 @@
 import streamlit as st
 from util import developer_info
-from src.plot import list_all, correlation_matrix, confusion_metrix, roc
+from src.plot import list_all, correlation_matrix, confusion_metrix, roc, correlation_matrix_plotly
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
 from src.preprocess import convert_to_numeric, remove_rows_with_empty_target, remove_duplicates
-from src.llm_service import decide_fill_null, decide_encode_type, decide_model, decide_target_attribute, decide_test_ratio
+from src.llm_service import decide_fill_null, decide_encode_type, decide_model, decide_target_attribute, decide_test_ratio, decide_balance
 from src.pca import decide_pca, perform_pca
 from src.model_service import split_data, check_and_balance, fpr_and_tpr, auc, save_model, calculate_f1_score
 from src.predictive_model import train_selected_model
-from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name, count_unique, attribute_info
+from src.util import select_Y, contain_null_attributes_info, separate_fill_null_list, check_all_columns_numeric, non_numeric_columns_and_head, separate_decode_list, get_data_overview, get_selected_models, get_model_name, count_unique, attribute_info, get_balance_info, get_balance_method_name
 
 def update_balance_data():
     st.session_state.balance_data = st.session_state.to_perform_balance
@@ -100,6 +100,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
 
         # Data Encoding
         st.subheader("Process Data Encoding")
+        st.caption("*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped.")
         if 'all_numeric' not in st.session_state:
             st.session_state.all_numeric = check_all_columns_numeric(st.session_state.data_origin)
         
@@ -110,8 +111,8 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
                     st.write("Large language model analysis...")
                     encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head, GPT_MODEL, API_KEY)
                     st.write("Encoding the data...")
-                    convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, st.session_state.selected_Y)
-                    encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols)
+                    convert_int_cols, one_hot_cols, drop_cols = separate_decode_list(encode_result_dict, st.session_state.selected_Y)
+                    encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols, drop_cols)
                     # Store the imputed DataFrame in session_state
                     st.session_state.encoded_df = encoded_df
                     DF = encoded_df
@@ -137,7 +138,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
         if 'df_cleaned1' not in st.session_state:
             st.session_state.df_cleaned1 = DF
         st.subheader('Correlation Between Attributes')
-        st.pyplot(correlation_matrix(st.session_state.df_cleaned1))
+        st.plotly_chart(correlation_matrix_plotly(st.session_state.df_cleaned1))
 
         # Remove duplicate entities
         st.subheader('Remove Duplicate Entities')
@@ -186,6 +187,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
             st.metric(label="Test Data", value=f"{st.session_state.test_percentage}%", delta=None)
             st.toggle('Class Balancing', value=st.session_state.balance_data, key='to_perform_balance', on_change=update_balance_data, disabled=st.session_state['start_training'])
             st.caption('Strategies for handling imbalanced data sets and to enhance machine learning model performance.')
+            st.caption('AI will select the most appropriate method to balance the data.')
         
         st.button("Start Training Model", on_click=start_training_model, type="primary", disabled=st.session_state['start_training'])
 
@@ -193,12 +195,17 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
             with st.container():
                 st.header("Modeling")
                 X, Y = select_Y(st.session_state.df_pca, st.session_state.selected_Y)
-
+                
                 # Balancing
-                if st.session_state.balance_data:
-                    X_train_res, Y_train_res = check_and_balance(X, Y)
+                if st.session_state.balance_data and "balance_method" not in st.session_state:
+                    with st.spinner("AI is deciding the balance strategy for the data..."):
+                        shape_info_balance, description_info_balance, balance_info_balance = get_balance_info(st.session_state.df_pca, st.session_state.selected_Y)
+                        st.session_state.balance_method = int(decide_balance(shape_info_balance, description_info_balance, balance_info_balance, GPT_MODEL, API_KEY))
+                        X_train_res, Y_train_res = check_and_balance(X, Y, method = st.session_state.balance_method)
                 else:
                     X_train_res, Y_train_res = X, Y
+                    if 'balance_method' not in st.session_state:
+                        st.session_state.balance_method = 4
 
                 # Splitting the data
                 X_train, X_test, Y_train, Y_test = split_data(X_train_res, Y_train_res, st.session_state.test_percentage / 100, 42, st.session_state.to_perform_pca)
@@ -236,15 +243,18 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
 
 def display_results(X_train, X_test, Y_train, Y_test):
     st.success("Models selected based on your data!")
+        
 
     # Data set metrics
-    data_col1, data_col2, data_col3 = st.columns(3)
+    data_col1, data_col2, data_col3, balance_col4 = st.columns(4)
     with data_col1:
         st.metric(label="Total Data", value=len(X_train)+len(X_test), delta=None)
     with data_col2:
         st.metric(label="Training Data", value=len(X_train), delta=None)
     with data_col3:
         st.metric(label="Testing Data", value=len(X_test), delta=None)
+    with balance_col4:
+        st.metric(label="Balance Strategy", value=get_balance_method_name(st.session_state.balance_method), delta=None)
     
     # Model training
     model_col1, model_col2, model_col3 = st.columns(3)

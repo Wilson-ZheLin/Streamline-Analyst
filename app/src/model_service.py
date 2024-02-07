@@ -3,7 +3,7 @@ from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 from collections import Counter
 from joblib import dump
-from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from sklearn.metrics import roc_curve, silhouette_score, calinski_harabasz_score, davies_bouldin_score, f1_score
 from sklearn.model_selection import train_test_split
 
@@ -43,18 +43,18 @@ def standardize_data(X):
     scaler = StandardScaler()
     return scaler.fit_transform(X)
 
-def check_and_balance(X, Y, balance_threshold=0.5):
+def check_and_balance(X, Y, balance_threshold=0.5, method=1):
     """
-    Check if the dataset is imbalanced and perform oversampling if necessary.
+    Check if the dataset is imbalanced and perform oversampling if necessary using RandomOverSampler, SMOTE, or ADASYN.
 
     Args:
     X (DataFrame): Feature set.
     Y (Series): Target variable.
     balance_threshold (float): Threshold for class balance.
+    method (int): Method for oversampling. Options are 'random', 'smote', or 'adasyn'.
 
     Returns:
-    X_resampled, Y_resampled (DataFrame/Series): Resampled data if imbalance is detected, 
-    else original data.
+    X_resampled, Y_resampled (DataFrame/Series): Resampled data if imbalance is detected, else original data.
     """
     # Check the distribution of the target variable
     class_distribution = Counter(Y)
@@ -64,8 +64,14 @@ def check_and_balance(X, Y, balance_threshold=0.5):
     max_class_samples = max(class_distribution.values())
     is_imbalanced = min_class_samples / max_class_samples < balance_threshold
 
-    if is_imbalanced:
-        oversampler = RandomOverSampler(random_state=0)
+    if is_imbalanced and method != 4:
+        if method == 1:
+            oversampler = RandomOverSampler(random_state=0)
+        elif method == 2:
+            oversampler = SMOTE(random_state=0)
+        elif method == 3:
+            oversampler = ADASYN(random_state=0)
+
         X_resampled, Y_resampled = oversampler.fit_resample(X, Y)
         return X_resampled, Y_resampled
     else:

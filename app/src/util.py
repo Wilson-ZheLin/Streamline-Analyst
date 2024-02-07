@@ -101,13 +101,23 @@ def get_data_overview(df):
     description_info = df.describe(include='all').to_csv()
     return shape_info, head_info, nunique_info, description_info
 
+def get_balance_info(df, Y_name):
+    shape_info = df.shape
+    description_info = df.describe().to_csv()
+    balance_info = df[Y_name].value_counts().to_dict()
+    return shape_info, description_info, balance_info
+
 def separate_decode_list(decided_dict, Y_name):
     convert_int_cols = [key for key, value in decided_dict.items() if value == 1]
     one_hot_cols = [key for key, value in decided_dict.items() if value == 2]
+    drop_cols = [key for key, value in decided_dict.items() if value == 3]
     if Y_name and Y_name in one_hot_cols:
         one_hot_cols.remove(Y_name)
         convert_int_cols.append(Y_name)
-    return convert_int_cols, one_hot_cols
+    if Y_name and Y_name in drop_cols:
+        drop_cols.remove(Y_name)
+        convert_int_cols.append(Y_name)
+    return convert_int_cols, one_hot_cols, drop_cols
 
 def separate_fill_null_list(fill_null_dict):
     mean_list = [key for key, value in fill_null_dict.items() if value == 1]
@@ -135,6 +145,16 @@ def get_model_name(model_no):
         return "XGBoost"
     elif model_no == 7:
         return "Grandient Boost"
+    
+def get_balance_method_name(method):
+    if method == 1:
+        return "ROS"
+    elif method == 2:
+        return "SMOTE"
+    elif method == 3:
+        return "ADASYN"
+    elif method == 4:
+        return "None"
     
 def count_unique(df, Y):
     return df[Y].nunique()

@@ -153,24 +153,16 @@ def correlation_matrix_plotly(df):
         colorscale='Viridis',
         colorbar=dict(title='Correlation'),
         text=text,
-        hoverinfo='none',
+        hoverinfo='text',
     ))
-    for i, row in enumerate(text):
-        for j, value in enumerate(row):
-            fig.add_annotation(
-                x=labels[j],
-                y=labels[i],
-                text=value,
-                showarrow=False,
-                font=dict(size=10, color="white")
-            )
     fig.update_layout(
-        title='Correlation Matrix',
+        title='Correlation Matrix Between Attributes',
         xaxis=dict(tickmode='linear'),
         yaxis=dict(tickmode='linear'),
         width=800,
         height=700,
     )
+    fig.update_layout(font=dict(size=10))
     return fig
 
 @st.cache_data

@@ -80,7 +80,7 @@ with st.container():
     if 'button_clicked' not in st.session_state:
         st.session_state.button_clicked = False
 
-    if st.button('Start Analysis', disabled=not is_proceed_enabled or st.session_state.button_clicked, type="primary"):
+    if st.button('Start Analysis', disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"):
         st.session_state.button_clicked = True
     if "is_file_empty" in st.session_state and st.session_state.is_file_empty:
         st.caption('Your data file is empty!')

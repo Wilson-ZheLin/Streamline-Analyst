@@ -1,6 +1,6 @@
 import streamlit as st
 from util import developer_info
-from src.plot import list_all, correlation_matrix, plot_clusters
+from src.plot import list_all, correlation_matrix, plot_clusters, correlation_matrix_plotly
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
 from src.preprocess import convert_to_numeric, remove_duplicates
 from src.llm_service import decide_fill_null, decide_encode_type
@@ -18,14 +18,15 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
     st.dataframe(st.session_state.data_origin.describe(), width=1200)
-    st.pyplot(list_all(st.session_state.data_origin))
+    # st.pyplot(list_all(st.session_state.data_origin))
     
     # Data Imputation
     st.subheader('Handle and Impute Missing Values')
-    contain_null = contains_missing_value(st.session_state.data_origin)
+    if "contain_null" not in st.session_state:
+            st.session_state.contain_null = contains_missing_value(st.session_state.data_origin)
 
     if 'filled_df' not in st.session_state:
-        if contain_null:
+        if st.session_state.contain_null:
             with st.status("Processing **missing values** in the data...", expanded=True) as status:
                 st.write("Filtering out high-frequency missing rows and columns...")
                 filled_df = remove_high_null(DF)
@@ -39,12 +40,17 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
                 st.session_state.filled_df = filled_df
                 DF = filled_df
                 status.update(label='Missing value processing completed!', state="complete", expanded=False)
+            st.download_button(
+                label="Download Data with Missing Values Imputed",
+                data=st.session_state.filled_df.to_csv(index=False).encode('utf-8'),
+                file_name="imputed_missing_values.csv",
+                mime='text/csv')
         else:
+            st.session_state.filled_df = DF
             st.success("No missing values detected. Processing skipped.")
-
-    if 'filled_df' in st.session_state:
+    else:
         st.success("Missing value processing completed!")
-        if contain_null:
+        if st.session_state.contain_null:
             st.download_button(
                 label="Download Data with Missing Values Imputed",
                 data=st.session_state.filled_df.to_csv(index=False).encode('utf-8'),
@@ -53,27 +59,34 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
 
     # Data Encoding
     st.subheader("Process Data Encoding")
-    all_numeric = check_all_columns_numeric(st.session_state.data_origin)
+    st.caption("*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped.")
+    if 'all_numeric' not in st.session_state:
+        st.session_state.all_numeric = check_all_columns_numeric(st.session_state.data_origin)
     
     if 'encoded_df' not in st.session_state:
-        if not all_numeric:
+        if not st.session_state.all_numeric:
             with st.status("Encoding non-numeric data using **numeric mapping** and **one-hot**...", expanded=True) as status:
                 non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(DF)
                 st.write("Large language model analysis...")
                 encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head, GPT_MODEL, API_KEY)
                 st.write("Encoding the data...")
-                convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, "")
-                encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols)
+                convert_int_cols, one_hot_cols, drop_cols = separate_decode_list(encode_result_dict, "")
+                encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols, drop_cols)
                 # Store the imputed DataFrame in session_state
                 st.session_state.encoded_df = encoded_df
                 DF = encoded_df
                 status.update(label='Data encoding completed!', state="complete", expanded=False)
+            st.download_button(
+                label="Download Encoded Data",
+                data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
+                file_name="encoded_data.csv",
+                mime='text/csv')
         else:
+            st.session_state.encoded_df = DF
             st.success("All columns are numeric. Processing skipped.")
-        
-    if 'encoded_df' in st.session_state:
+    else:
         st.success("Data encoded completed using numeric mapping and one-hot!")
-        if not all_numeric:
+        if not st.session_state.all_numeric:
             st.download_button(
                 label="Download Encoded Data",
                 data=st.session_state.encoded_df.to_csv(index=False).encode('utf-8'),
@@ -84,7 +97,7 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
     if 'df_cleaned1' not in st.session_state:
         st.session_state.df_cleaned1 = DF
     st.subheader('Correlation Between Attributes')
-    st.pyplot(correlation_matrix(st.session_state.df_cleaned1))
+    st.plotly_chart(correlation_matrix_plotly(st.session_state.df_cleaned1))
 
     # Remove duplicate entities
     st.subheader('Remove Duplicate Entities')
@@ -102,7 +115,8 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
             st.session_state.to_perform_pca = to_perform_pca
         if st.session_state.to_perform_pca:
             st.session_state.df_pca = perform_pca(st.session_state.df_cleaned2, n_components, "")
-            # DF = perform_pca(DF, n_components, selected_Y)
+        else:
+            st.session_state.df_pca = st.session_state.df_cleaned2
     st.success("Completed!")
 
     # Splitting and Balancing
@@ -179,7 +193,7 @@ def display_results(X):
         st.subheader(st.session_state.model1_name)
         # Slider for model parameters
         st.caption('N-cluster for K-Means:')
-        n_clusters1 = st.slider('N clusters', 2, 20, 3, label_visibility="hidden", key='n_clusters1')
+        n_clusters1 = st.slider('N clusters', 2, 20, 3, label_visibility="collapsed", key='n_clusters1')
         
         with st.spinner("Model training in progress..."):
             st.session_state.model1 = KMeans_train(X, n_clusters=n_clusters1)
@@ -198,7 +212,7 @@ def display_results(X):
         st.subheader(st.session_state.model2_name)
         # Slider for model parameters
         st.caption('N-cluster is not applicable to DBSCAN.')
-        n_clusters2 = st.slider('N clusters', 2, 20, 3, label_visibility="hidden", disabled=True, key='n_clusters2')
+        n_clusters2 = st.slider('N clusters', 2, 20, 3, label_visibility="collapsed", disabled=True, key='n_clusters2')
         
         with st.spinner("Model training in progress..."):
             st.session_state.model2 = DBSCAN_train(X)
@@ -217,7 +231,7 @@ def display_results(X):
         st.subheader(st.session_state.model3_name)
         # Slider for model parameters
         st.caption('N-Component for Gaussian Mixture:')
-        n_clusters3 = st.slider('N components', 2, 20, 3, label_visibility="hidden", key='n_clusters3')
+        n_clusters3 = st.slider('N components', 2, 20, 3, label_visibility="collapsed", key='n_clusters3')
         
         with st.spinner("Model training in progress..."):
             st.session_state.model3 = GaussianMixture_train(X, n_components=n_clusters3)

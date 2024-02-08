@@ -60,3 +60,14 @@ def perform_pca(df, n_components, Y_name):
         pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
 
     return pca_df
+
+def perform_PCA_for_clustering(df, n_components):
+    # Applying PCA
+    pca = PCA(n_components=n_components)
+    principal_components = pca.fit_transform(df)
+    
+    # Create a new DataFrame with principal components
+    columns = [f'PC{i+1}' for i in range(n_components)]
+    pca_df = pd.DataFrame(data=principal_components, columns=columns)
+    
+    return pca_df

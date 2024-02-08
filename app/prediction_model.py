@@ -1,5 +1,5 @@
 import streamlit as st
-from util import developer_info
+from util import developer_info, developer_info_static
 from src.plot import list_all, correlation_matrix, confusion_metrix, roc, correlation_matrix_plotly
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
 from src.preprocess import convert_to_numeric, remove_rows_with_empty_target, remove_duplicates
@@ -239,12 +239,16 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL):
                         st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
 
         st.divider()
-        if "all_set" in st.session_state and st.session_state["all_set"]: developer_info()
+        if "all_set" in st.session_state and st.session_state["all_set"]:
+            if "has_been_set" not in st.session_state:
+                st.session_state["has_been_set"] = True
+                developer_info()
+            else:
+                developer_info_static()
 
 def display_results(X_train, X_test, Y_train, Y_test):
     st.success("Models selected based on your data!")
-        
-
+    
     # Data set metrics
     data_col1, data_col2, data_col3, balance_col4 = st.columns(4)
     with data_col1:

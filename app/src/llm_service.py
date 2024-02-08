@@ -76,6 +76,26 @@ def decide_model(shape_info, head_info, nunique_info, description_info, model_ty
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
+def decide_cluster_model(shape_info, description_info, cluster_info, model_type = 4, user_api_key = None):
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+
+        template = config["decide_clustering_model_template"]
+        prompt_template = PromptTemplate(input_variables=["shape_info", "description_info", "cluster_info"], template=template)
+        summary_prompt = prompt_template.format(shape_info=shape_info, description_info=description_info, cluster_info=cluster_info)
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if '```json' in llm_answer.content:
+            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+            if match: json_str = match.group(1)
+        else: json_str = llm_answer.content
+        return json.loads(json_str)
+    except Exception as e:
+        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
 def decide_target_attribute(attributes, types_info, head_info, model_type = 4, user_api_key = None):
     try:
         model_name = model4_name if model_type == 4 else model3_name
@@ -182,11 +202,22 @@ if __name__ == '__main__':
     # print(ratio)
     # print("LLM response time:", time.time() - start_time)
 
-    path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/survey lung cancer.csv"
-    start_time = time.time()
-    df = read_file(path)
-    shape_info, description_info, balance_info = get_balance_info(df, "LUNG_CANCER")
-    method = decide_balance(shape_info, description_info, balance_info)
-    print(method)
-    print("LLM response time:", time.time() - start_time)
+    # path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/survey lung cancer.csv"
+    # start_time = time.time()
+    # df = read_file(path)
+    # shape_info, description_info, balance_info = get_balance_info(df, "LUNG_CANCER")
+    # method = decide_balance(shape_info, description_info, balance_info)
+    # print(method)
+    # print("LLM response time:", time.time() - start_time)
 
+    # path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/Iris.csv"
+    # start_time = time.time()
+    # df = read_file(path).drop("Species", axis=1)
+    # shape_info = str(df.shape)
+    # description_info = df.describe().to_csv()
+    # cluster_info = estimate_optimal_clusters(df)
+    # mark_time = time.time()
+    # print("Data preprocessing time:", mark_time - start_time)
+    # models = decide_cluster_model(shape_info, description_info, cluster_info)
+    # print(models)
+    # print("LLM response time:", time.time() - mark_time)

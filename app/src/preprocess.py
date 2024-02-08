@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+from scipy import stats
+from sklearn.preprocessing import StandardScaler, PowerTransformer
 from src.util import read_file, non_numeric_columns_and_head, separate_decode_list
 
 def initial(df):
@@ -92,6 +95,24 @@ def remove_rows_with_empty_target(df, Y_name):
 
 def remove_duplicates(df):
     return df.drop_duplicates()
+
+def transform_data_for_clustering(df):
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    transformed_df = df.copy()
+    pt = PowerTransformer(method='box-cox', standardize=False)
+
+    for col in numeric_cols:
+        if (transformed_df[col] > 0).all():
+            skewness = stats.skew(transformed_df[col])
+            if abs(skewness) > 0.5:
+                transformed_data = pt.fit_transform(transformed_df[[col]])
+                transformed_df[col] = transformed_data
+
+    scaler = StandardScaler()
+    transformed_df[numeric_cols] = scaler.fit_transform(transformed_df[numeric_cols])
+    
+    return transformed_df
+
 
 if __name__ == '__main__':
     path = '/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/src/data/survey lung cancer.csv'

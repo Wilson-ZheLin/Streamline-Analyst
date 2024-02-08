@@ -146,6 +146,18 @@ def get_model_name(model_no):
     elif model_no == 7:
         return "Grandient Boost"
     
+def get_cluster_method_name(method):
+    if method == 1:
+        return "K-Means"
+    elif method == 2:
+        return "DBSCAN"
+    elif method == 3:
+        return "Gaussian Mixture"
+    elif method == 4:
+        return "Agglomerative Hierarchical"
+    elif method == 5:
+        return "Spectral Clustering"
+    
 def get_balance_method_name(method):
     if method == 1:
         return "ROS"

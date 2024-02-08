@@ -1,9 +1,11 @@
+import streamlit as st
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
+@st.cache_data
 def train_selected_model(X_train, Y_train, model_type, model_params=None):
     if model_type == 1:
         return LogisticRegression_train(X_train, Y_train, model_params)

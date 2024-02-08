@@ -1,4 +1,5 @@
 import streamlit as st
+from util import developer_info_static
 from src.plot import list_all, distribution_histogram, distribution_boxplot, count_Y, box_plot, violin_plot, strip_plot, density_plot ,multi_plot_heatmap, multi_plot_scatter, multi_plot_line, word_cloud_plot, world_map, scatter_3d
 
 def display_word_cloud(text):
@@ -211,4 +212,4 @@ def data_visualization(DF):
     st.pyplot(st.session_state.overall_plot)
 
     st.divider()
-    st.write(":grey[Streamline Analyst is developed by *Zhe Lin*. You can reach out to me via] :blue[wilson.linzhe@gmail.com] :grey[or] :blue[[GitHub](https://github.com/Wilson-ZheLin)]")
+    developer_info_static()

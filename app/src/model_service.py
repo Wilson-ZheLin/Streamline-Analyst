@@ -1,9 +1,11 @@
 import io
-from sklearn import metrics
-from sklearn.preprocessing import StandardScaler
+import numpy as np
 from collections import Counter
 from joblib import dump
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
+from sklearn import metrics
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
 from sklearn.metrics import roc_curve, silhouette_score, calinski_harabasz_score, davies_bouldin_score, f1_score
 from sklearn.model_selection import train_test_split
 
@@ -39,10 +41,6 @@ def split_data(X, Y, test_size = 0.2, random_state = 42, perform_pca = False):
 
     return X_train, X_test, Y_train, Y_test
 
-def standardize_data(X):
-    scaler = StandardScaler()
-    return scaler.fit_transform(X)
-
 def check_and_balance(X, Y, balance_threshold=0.5, method=1):
     """
     Check if the dataset is imbalanced and perform oversampling if necessary using RandomOverSampler, SMOTE, or ADASYN.
@@ -77,6 +75,30 @@ def check_and_balance(X, Y, balance_threshold=0.5, method=1):
     else:
         return X, Y
     
+def estimate_optimal_clusters(df):
+    sse = {}
+    for k in range(2, 11):
+        kmeans = KMeans(n_clusters=k, random_state=42).fit(df)
+        sse[k] = kmeans.inertia_
+    
+    # Find the elbow point: compute the first and second differences of the SSE
+    sse_values = list(sse.values())
+    first_diff = np.diff(sse_values)  # first difference
+    second_diff = np.diff(first_diff)  # second difference
+    knee_point = np.argmax(second_diff) + 2
+    
+    # find the optimal number of clusters around the knee point
+    silhouette_avg_scores = {}
+    for k in range(knee_point - 1, knee_point + 2):
+        if k >= 2:  # make sure k is at least 2
+            kmeans = KMeans(n_clusters=k, random_state=42).fit(df)
+            silhouette_avg_scores[k] = silhouette_score(df, kmeans.labels_)
+    
+    # Find the optimal number of clusters based on the highest average silhouette score
+    optimal_clusters = max(silhouette_avg_scores, key=silhouette_avg_scores.get)
+    
+    return optimal_clusters
+
 def calculate_f1_score(model, X_test, Y_test, binary_classification=True):
     y_pred = model.predict(X_test)
     if binary_classification:

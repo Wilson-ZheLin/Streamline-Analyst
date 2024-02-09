@@ -2,22 +2,6 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from sklearn.preprocessing import StandardScaler, PowerTransformer
-from src.util import read_file, non_numeric_columns_and_head, separate_decode_list
-
-def initial(df):
-    shape = df.shape
-    # df.info()
-    head = df.head(10)
-    nunique = df.nunique()
-    types = df.dtypes
-    description = df.describe(include='all')
-    null_info = df.isnull()
-    print(shape, '\n')
-    print(head, '\n')
-    print(nunique, '\n')
-    print(types, '\n')
-    print(description, '\n')
-    print(null_info.sum(), '\n')
 
 def convert_to_numeric(df, convert_int_cols_list, one_hot_cols_list, drop_cols):
     df, int_mapping = convert_to_integer(df, convert_int_cols_list)
@@ -112,24 +96,3 @@ def transform_data_for_clustering(df):
     transformed_df[numeric_cols] = scaler.fit_transform(transformed_df[numeric_cols])
     
     return transformed_df
-
-
-if __name__ == '__main__':
-    path = '/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/src/data/survey lung cancer.csv'
-    df = read_file(path)
-    # df, mappings = convert_to_numeric(df, ['GENDER', 'LUNG_CANCER'])
-    # df, mappings = convert_to_one_hot(df, ['GENDER', 'LUNG_CANCER'])
-    initial(df)
-    # non_numeric_cols, non_numeric_head = non_numeric_columns_and_head(df)
-    # print(df.head(10))
-    # print(mappings)
-    # print(non_numeric_cols)
-    # print(non_numeric_head)
-
-    # non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(df)
-    # encode_result_dict = decide_encode_type(non_numeric_attributes, non_numeric_head)
-    # convert_int_cols, one_hot_cols = separate_decode_list(encode_result_dict, "LUNG_CANCER")
-    # new_df, mappings = convert_to_numeric(df, convert_int_cols, one_hot_cols)
-    # print(mappings)
-    # print(new_df)
-    

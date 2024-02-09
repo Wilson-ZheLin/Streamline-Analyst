@@ -1,6 +1,4 @@
-import time
 import numpy as np
-from src.util import read_file, separate_fill_null_list, contain_null_attributes_info
 
 def contains_missing_value(df):
     return df.isnull().values.any()
@@ -85,19 +83,3 @@ def replace_placeholders_with_nan(df):
         if df[col].dtype == 'object':
             df[col] = df[col].apply(lambda x: np.nan if str(x).lower() in placeholders else x)
     return df
-
-if __name__ == '__main__':
-    path = '/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/src/data/test_null.csv'
-    df = read_file(path)
-    # print("Contain null:", contains_missing_value(df))
-    # start_time = time.time()
-    # attributes, types_info, description_info = contain_null_attributes_info(df)
-    # time1 = time.time()
-    # print("Data preprocessing time:", time1 - start_time)
-    # fill_result_dict = decide_fill_null(attributes, types_info, description_info)
-    # time2 = time.time()
-    # print("LLM response time:", time2 - time1)
-    # mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)
-    # new_df = fill_null_values(df, mean_list, median_list, mode_list, new_category_list, interpolation_list)
-    # print("Contain null:", contains_missing_value(new_df))
-    # print("Fill null time:", time.time() - time2)

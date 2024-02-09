@@ -1,16 +1,16 @@
+import nltk
 import seaborn as sns
 import numpy as np
 import pandas as pd
 import streamlit as st
-import nltk
-from nltk import regexp_tokenize
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import scipy.stats as stats
 from sklearn.decomposition import PCA
 from wordcloud import WordCloud
 from sklearn.metrics import confusion_matrix
-import scipy.stats as stats
+from nltk import regexp_tokenize
 
 # Single attribute visualization
 def distribution_histogram(df, attribute):

@@ -184,12 +184,3 @@ def get_regression_method_name(method):
     
 def count_unique(df, Y):
     return df[Y].nunique()
-
-if __name__ == '__main__':
-    path = "/Users/zhe/Desktop/Github/Streamline/Streamline-Analyst/app/src/data/survey lung cancer.csv"
-    df = read_file(path)
-    shape_info, head_info, nunique_info, description_info = get_data_overview(df)
-    print(shape_info)
-    print(head_info)
-    print(nunique_info)
-    print(description_info)

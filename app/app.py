@@ -1,5 +1,5 @@
-import streamlit as st
 import time
+import streamlit as st
 from streamlit_lottie import st_lottie
 from util import load_lottie, stream_data
 from prediction_model import prediction_model_pipeline

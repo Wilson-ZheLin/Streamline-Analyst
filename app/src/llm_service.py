@@ -96,6 +96,26 @@ def decide_cluster_model(shape_info, description_info, cluster_info, model_type 
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
+def decide_regression_model(shape_info, description_info, Y_name, model_type = 4, user_api_key = None):
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+
+        template = config["decide_regression_model_template"]
+        prompt_template = PromptTemplate(input_variables=["shape_info", "description_info", "Y_name"], template=template)
+        summary_prompt = prompt_template.format(shape_info=shape_info, description_info=description_info, Y_name=Y_name)
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if '```json' in llm_answer.content:
+            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+            if match: json_str = match.group(1)
+        else: json_str = llm_answer.content
+        return json.loads(json_str)
+    except Exception as e:
+        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
 def decide_target_attribute(attributes, types_info, head_info, model_type = 4, user_api_key = None):
     try:
         model_name = model4_name if model_type == 4 else model3_name

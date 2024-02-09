@@ -154,7 +154,7 @@ def get_cluster_method_name(method):
     elif method == 3:
         return "Gaussian Mixture"
     elif method == 4:
-        return "Agglomerative Hierarchical"
+        return "Agglomerative Clustering"
     elif method == 5:
         return "Spectral Clustering"
     
@@ -167,6 +167,20 @@ def get_balance_method_name(method):
         return "ADASYN"
     elif method == 4:
         return "None"
+    
+def get_regression_method_name(method):
+    if method == 1:
+        return "Linear Regression"
+    elif method == 2:
+        return "Ridge Regression"
+    elif method == 3:
+        return "Lasso Regression"
+    elif method == 4:
+        return "Random Forest"
+    elif method == 5:
+        return "Gradient Boosting"
+    elif method == 6:
+        return "Elastic Net"
     
 def count_unique(df, Y):
     return df[Y].nunique()

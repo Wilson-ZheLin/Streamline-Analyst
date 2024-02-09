@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from sklearn.decomposition import PCA
 from wordcloud import WordCloud
 from sklearn.metrics import confusion_matrix
+import scipy.stats as stats
 
 # Single attribute visualization
 def distribution_histogram(df, attribute):
@@ -230,6 +231,44 @@ def plot_clusters(X, labels):
     
     ax.set_title('Cluster Scatter Plot')
     ax.legend()
+    return fig
+
+def plot_residuals(y_pred, Y_test):
+    residuals = Y_test - y_pred
+    fig, ax = plt.subplots()
+    sns.residplot(x=y_pred, y=residuals, lowess=True, ax=ax, scatter_kws={'alpha': 0.7}, line_kws={'color': 'purple', 'lw': 2})
+    ax.set_xlabel('Predicted Values')
+    ax.set_ylabel('Residuals')
+    ax.set_title('Residual Plot')
+    return fig
+
+def plot_predictions_vs_actual(y_pred, Y_test):
+    fig, ax = plt.subplots()
+    ax.scatter(Y_test, y_pred, c='#10a37f', marker='x')
+    ax.plot([Y_test.min(), Y_test.max()], [Y_test.min(), Y_test.max()], 'k--', lw=2)
+    ax.set_xlabel('Actual')
+    ax.set_ylabel('Predicted')
+    ax.set_title('Actual vs. Predicted')
+    ax.set_facecolor('white')
+    ax.grid(True, which='major', linestyle='--', linewidth=0.5, color='gray')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    return fig
+
+def plot_qq_plot(y_pred, Y_test):
+    residuals = Y_test - y_pred
+    fig, ax = plt.subplots()
+    (osm, osr), (slope, intercept, r) = stats.probplot(residuals, dist="norm", plot=None)
+    line = slope * osm + intercept
+    ax.plot(osm, line, 'grey', lw=2)
+    ax.scatter(osm, osr, alpha=0.8, edgecolors='#e8b517', c='yellow', label='Data Points')
+    ax.set_title('Quantile-Quantile Plot')
+    ax.set_facecolor('white')
+    ax.grid(True, which='major', linestyle='--', linewidth=0.5, color='gray')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.set_xlabel('Theoretical Quantiles')
+    ax.set_ylabel('Ordered Values')
     return fig
 
 # Advanced Visualization

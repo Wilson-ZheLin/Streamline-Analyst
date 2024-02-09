@@ -71,3 +71,29 @@ def perform_PCA_for_clustering(df, n_components):
     pca_df = pd.DataFrame(data=principal_components, columns=columns)
     
     return pca_df
+
+def perform_PCA_for_regression(df, n_components, Y_name):
+
+    # Save the target column data
+    drop_columns = []
+    if Y_name:
+        target_data = df[Y_name]
+        drop_columns.append(Y_name)
+
+    # Remove non-numeric columns and the target column
+    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors='ignore')
+
+    # Applying PCA
+    pca = PCA(n_components=n_components)
+    principal_components = pca.fit_transform(numeric_df)
+    
+    # Create a new DataFrame with principal components
+    columns = [f'PC{i+1}' for i in range(n_components)]
+    pca_df = pd.DataFrame(data=principal_components, columns=columns)
+
+    # Reattach the target column
+    if Y_name:
+        pca_df[Y_name] = target_data.reset_index(drop=True)
+        pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
+    
+    return pca_df

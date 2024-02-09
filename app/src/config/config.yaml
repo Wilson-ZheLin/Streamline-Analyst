@@ -23,6 +23,10 @@ decide_clustering_model_template: |
   You are a data analyst. The shape of my data frame is {shape_info}. The description of the data frame is:
   {description_info}
   The data has been cleaned and preprocessed, numerically transformed, and ready to train the clustering models. According to the data information provided, please help me decide which clustering models should be used for discovering natural groupings in the data. The expected number of clusters is {cluster_info}. Model options are: 1:KMeans, 2:DBSCAN, 3:GaussianMixture, 4:AgglomerativeClustering, 5:SpectralClustering. Please select three models to take into account different model performance indicators. Only the data is returned in json format without any other explanation or content. Sample response: {{"model1":1,"model2":2,"model3":3}}
+decide_regression_model_template: |
+  You are a data analyst. You are trying to select some regression models to predict the target attribute. The shape of my data frame is {shape_info}. The target variable to be predicted is {Y_name}. The description of the data frame is:
+  {description_info}
+  The data has been cleaned and preprocessed, numerically transformed, and ready to train the regression models. According to the data information provided, please help me decide which regression models should be used to provide better prediction performance. Model options are: 1:LinearRegression, 2:Ridge, 3:Lasso, 4:RandomForestRegressor, 5:GradientBoostingRegressor, 6:ElasticNet. Please select three models to take into account different model performance indicators. Only the data is returned in json format without any other explanation or content. Sample response: {{"model1":1,"model2":2,"model3":3}}
 decide_target_attribute_template: |
   You are a data analyst. You are trying to find out which attribute is the target attribute from the data frame. The attributes are {attributes}. The types of these attributes are:
   {types_info}
@@ -33,7 +37,7 @@ decide_target_attribute_template: |
 decide_test_ratio_template: |
   You are a data analyst. You are trying to split the data frame into training set and test set. The shape of my data frame is {shape_info}. Determine the test set ratio based on the shape information provided and it's assumed that the categories of the target variable are balanced. The test set ratio range is 0.01 to 0.25. Only the data is returned in json format without any other explanation or content. Sample response: {{"test_ratio":0.25}}
 decide_balance_template: |
-  You are a data analyst. You have a cleaned and pre-processed data frame and you want to handleclass imbalance before training the machine learning model. The shape of my data frame is {shape_info}. The description of the data frame is:
+  You are a data analyst. You have a cleaned and pre-processed data frame and you want to handle class imbalance before training the machine learning model. The shape of my data frame is {shape_info}. The description of the data frame is:
   {description_info}
   The number of each value of the target attribute is: {balance_info}
   Determine the balance strategy based on the data information provided. The RandomOverSampler is represented by 1, the SMOTE is represented by 2, the ADASYN is represented by 3, and do not balance is represented by 4. Only the data is returned in json format without any other explanation or content. Sample response: {{"method":2}}

@@ -1,12 +1,13 @@
 import io
 import numpy as np
+import streamlit as st
 from collections import Counter
 from joblib import dump
 from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-from sklearn.metrics import roc_curve, silhouette_score, calinski_harabasz_score, davies_bouldin_score, f1_score
+from sklearn.metrics import roc_curve, silhouette_score, calinski_harabasz_score, davies_bouldin_score, f1_score, r2_score, mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 
 def save_model(model):
@@ -54,26 +55,30 @@ def check_and_balance(X, Y, balance_threshold=0.5, method=1):
     Returns:
     X_resampled, Y_resampled (DataFrame/Series): Resampled data if imbalance is detected, else original data.
     """
-    # Check the distribution of the target variable
-    class_distribution = Counter(Y)
+    try:
+        # Check the distribution of the target variable
+        class_distribution = Counter(Y)
 
-    # Determine if the dataset is imbalanced
-    min_class_samples = min(class_distribution.values())
-    max_class_samples = max(class_distribution.values())
-    is_imbalanced = min_class_samples / max_class_samples < balance_threshold
+        # Determine if the dataset is imbalanced
+        min_class_samples = min(class_distribution.values())
+        max_class_samples = max(class_distribution.values())
+        is_imbalanced = min_class_samples / max_class_samples < balance_threshold
 
-    if is_imbalanced and method != 4:
-        if method == 1:
-            oversampler = RandomOverSampler(random_state=0)
-        elif method == 2:
-            oversampler = SMOTE(random_state=0)
-        elif method == 3:
-            oversampler = ADASYN(random_state=0)
+        if is_imbalanced and method != 4:
+            if method == 1:
+                oversampler = RandomOverSampler(random_state=0)
+            elif method == 2:
+                oversampler = SMOTE(random_state=0)
+            elif method == 3:
+                oversampler = ADASYN(random_state=0)
 
-        X_resampled, Y_resampled = oversampler.fit_resample(X, Y)
-        return X_resampled, Y_resampled
-    else:
-        return X, Y
+            X_resampled, Y_resampled = oversampler.fit_resample(X, Y)
+            return X_resampled, Y_resampled
+        else:
+            return X, Y
+    except Exception as e:
+        st.error("The target attribute may be continuous. Please check the data type.")
+        st.stop()
     
 def estimate_optimal_clusters(df):
     sse = {}
@@ -119,3 +124,16 @@ def calculate_davies_bouldin_score(X, labels):
 def gmm_predict(X, model):
     labels = model.predict(X)
     return labels
+
+def calculate_r2_score(y_pred, Y_test):
+    r2 = r2_score(Y_test, y_pred)
+    return r2
+
+def calculate_mse_and_rmse(y_pred, Y_test):
+    mse = mean_squared_error(Y_test, y_pred)
+    rmse = np.sqrt(mse)
+    return mse, rmse
+
+def calculate_mae(y_pred, Y_test):
+    mae = mean_absolute_error(Y_test, y_pred)
+    return mae

@@ -1,7 +1,7 @@
 import streamlit as st
 from util import developer_info, developer_info_static
 from src.plot import list_all, correlation_matrix, plot_clusters, correlation_matrix_plotly
-from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
+from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values, replace_placeholders_with_nan
 from src.preprocess import convert_to_numeric, remove_duplicates, transform_data_for_clustering
 from src.llm_service import decide_fill_null, decide_encode_type, decide_cluster_model
 from src.pca import decide_pca, perform_pca, perform_PCA_for_clustering
@@ -23,7 +23,7 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
     # Data Imputation
     st.subheader('Handle and Impute Missing Values')
     if "contain_null" not in st.session_state:
-            st.session_state.contain_null = contains_missing_value(st.session_state.data_origin)
+        st.session_state.contain_null = contains_missing_value(st.session_state.data_origin)
 
     if 'filled_df' not in st.session_state:
         if st.session_state.contain_null:

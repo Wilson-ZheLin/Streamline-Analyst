@@ -4,6 +4,7 @@ from streamlit_lottie import st_lottie
 from util import load_lottie, stream_data
 from prediction_model import prediction_model_pipeline
 from cluster_model import cluster_model_pipeline
+from regression_model import regression_model_pipeline
 from visualization import data_visualization
 from src.util import read_file_from_streamlit
 
@@ -44,7 +45,7 @@ with st.container():
 # MAIN SECTION
 with st.container():
     st.divider()
-    st.header("Getting Started")
+    st.header("Let's Get Started")
     left_column, right_column = st.columns([6, 4])
     with left_column:
         API_KEY = st.text_input(
@@ -68,7 +69,7 @@ with st.container():
 
         MODE = st.selectbox(
         'Select proper data analysis mode',
-        ('Predictive Classification', 'Clustering Model', 'Data Visualization'))
+        ('Predictive Classification', 'Clustering Model', 'Regression Model', 'Data Visualization'))
         
         st.write(f'Model selected: :green[{SELECTED_MODEL}]')
         st.write(f'Data analysis mode: :green[{MODE}]')
@@ -95,5 +96,7 @@ with st.container():
                     prediction_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
                 elif MODE == 'Clustering Model':
                     cluster_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                elif MODE == 'Regression Model':
+                    regression_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
                 elif MODE == 'Data Visualization':
                     data_visualization(st.session_state.DF_uploaded)

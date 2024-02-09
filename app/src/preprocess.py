@@ -74,7 +74,7 @@ def convert_to_one_hot(df, columns_to_convert=[]):
             # Add the new columns to the modified DataFrame
             df_modified = pd.concat([df_modified, one_hot], axis=1)
             # Drop the original column
-            df_modified.drop(column, axis=1, inplace=True)
+            df_modified = df_modified.drop(column, axis=1)
 
             # Store the mapping
             mappings[column] = {i: column + '_' + str(i) for i in df[column].unique()}

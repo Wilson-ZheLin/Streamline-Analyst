@@ -7,6 +7,20 @@ from xgboost import XGBClassifier
 
 @st.cache_data
 def train_selected_model(X_train, Y_train, model_type, model_params=None):
+    """
+    Trains a specific classification model based on the provided model type and parameters.
+
+    Parameters:
+    - X_train (array-like): The training input samples.
+    - Y_train (array-like): The target labels for classification.
+    - model_type (int): Specifies the type of classification model to be trained.
+        1 for Logistic Regression, 2 for Support Vector Machine (SVM), 3 for Naive Bayes,
+        4 for Random Forest, 5 for AdaBoost, 6 for XGBoost, and 7 for Gradient Boosting.
+    - model_params (dict, optional): A dictionary of parameters for the model. Defaults to None.
+
+    Returns:
+    - model: The trained model object based on the specified type.
+    """
     if model_type == 1:
         return LogisticRegression_train(X_train, Y_train, model_params)
     elif model_type == 2:

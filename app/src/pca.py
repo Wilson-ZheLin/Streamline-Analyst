@@ -5,6 +5,18 @@ from sklearn.preprocessing import StandardScaler
 from src.preprocess import convert_to_integer
 
 def decide_pca(df, cumulative_variance_threshold=0.95, min_dim_reduction_ratio=0.1):
+    """
+    Determines whether PCA should be performed based on cumulative variance threshold and dimension reduction ratio.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame.
+    - cumulative_variance_threshold (float): The threshold of explained variance to retain. Default is 0.95.
+    - min_dim_reduction_ratio (float): The minimum ratio of dimension reduction required to perform PCA. Default is 0.1.
+
+    Returns:
+    - perform_pca (bool): Whether PCA should be performed.
+    - n_components (int): The number of principal components to retain.
+    """
     # Remove non-numeric columns
     numeric_df = df.select_dtypes(include=[np.number])
 
@@ -31,7 +43,15 @@ def decide_pca(df, cumulative_variance_threshold=0.95, min_dim_reduction_ratio=0
 
 def perform_pca(df, n_components, Y_name):
     """
-    Perform PCA on a given DataFrame.
+    Performs PCA on the dataset, optionally excluding a target column, and standardizes the data.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame.
+    - n_components (int): The number of principal components to retain.
+    - Y_name (str, optional): The name of the target column to exclude from PCA. Default is None.
+
+    Returns:
+    - pca_df (DataFrame): DataFrame with principal components and optionally the target column.
     """
     # Save the target column data
     drop_columns = []
@@ -62,6 +82,16 @@ def perform_pca(df, n_components, Y_name):
     return pca_df
 
 def perform_PCA_for_clustering(df, n_components):
+    """
+    Applies PCA transformation for clustering tasks on the given DataFrame.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame to apply PCA.
+    - n_components (int): The number of principal components to retain.
+
+    Returns:
+    - pca_df (DataFrame): DataFrame of the principal components.
+    """
     # Applying PCA
     pca = PCA(n_components=n_components)
     principal_components = pca.fit_transform(df)
@@ -73,6 +103,17 @@ def perform_PCA_for_clustering(df, n_components):
     return pca_df
 
 def perform_PCA_for_regression(df, n_components, Y_name):
+    """
+    Applies PCA for regression tasks, excluding a specified target column from the transformation.
+
+    Parameters:
+    - df (DataFrame): The input DataFrame.
+    - n_components (int): The number of principal components to retain.
+    - Y_name (str, optional): The name of the target column to exclude from PCA and append back after transformation. Default is None.
+
+    Returns:
+    - pca_df (DataFrame): A new DataFrame with principal components and the target column.
+    """
 
     # Save the target column data
     drop_columns = []

@@ -16,7 +16,10 @@ def data_visualization(DF):
     st.subheader('Data Visualization')
     attributes = DF.columns.tolist()
 
+    # Three tabs for three kinds of visualization
     single_tab, multiple_tab, advanced_tab = st.tabs(['Single Attribute Visualization', 'Multiple Attributes Visualization', 'Advanced Visualization'])
+    
+    # Single attribute visualization
     with single_tab:
         _, col_mid, _ = st.columns([1, 5, 1])
         with col_mid:
@@ -66,6 +69,7 @@ def data_visualization(DF):
             fig = density_plot(DF, att)
             plot_area.plotly_chart(fig)
 
+    # Multiple attribute visualization
     with multiple_tab:
         col1, col2 = st.columns([6, 4])
         with col1:
@@ -126,6 +130,7 @@ def data_visualization(DF):
                 else:
                     plot_area.pyplot(fig)
 
+    # Advanced visualization
     with advanced_tab:
         st.subheader("3D Scatter Plot")
         column_1, column_2, column_3 = st.columns(3)
@@ -203,6 +208,7 @@ def data_visualization(DF):
                     st.plotly_chart(world_fig)
     st.divider()
 
+    # Data Overview
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF

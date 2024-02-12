@@ -4,6 +4,20 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 
 @st.cache_data
 def train_selected_regression_model(X_train, Y_train, model_type, model_params=None):
+    """
+    Trains a regression model based on the specified model type and parameters.
+
+    Parameters:
+    - X_train (array-like): The training input samples.
+    - Y_train (array-like): The target values (real numbers).
+    - model_type (int): An integer representing the type of regression model to train. 
+        1 for Linear Regression, 2 for Ridge Regression, 3 for Lasso Regression, 
+        4 for Random Forest Regressor, 5 for Gradient Boosting Regressor, and 6 for ElasticNet Regression.
+    - model_params (dict, optional): A dictionary of model-specific parameters. Default is None.
+
+    Returns:
+    - The trained regression model object based on the specified model type.
+    """
     if model_type == 1:
         return LinearRegression_train(X_train, Y_train, model_params)
     elif model_type == 2:

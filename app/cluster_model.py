@@ -18,7 +18,6 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
     st.dataframe(st.session_state.data_origin.describe(), width=1200)
-    # st.pyplot(list_all(st.session_state.data_origin))
     
     # Data Imputation
     st.subheader('Handle and Impute Missing Values')
@@ -125,8 +124,6 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
         st.session_state.test_percentage = 20
     if 'balance_data' not in st.session_state:
         st.session_state.balance_data = False
-
-    # Model Training
     if "start_training" not in st.session_state:
         st.session_state["start_training"] = False
     if 'model_trained' not in st.session_state:
@@ -145,10 +142,13 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
     
     st.button("Start Training Model", on_click=start_training_model, type="primary", disabled=st.session_state['start_training'])
 
+    # Model Training
     if st.session_state['start_training']:
         with st.container():
             st.header("Modeling")
-            st.session_state.X = st.session_state.df_pca
+            if not st.session_state.get("data_prepared", False): 
+                st.session_state.X = st.session_state.df_pca
+                st.session_state.data_prepared = True
 
             # Decide model types:
             if "decided_model" not in st.session_state:
@@ -168,10 +168,12 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
                         st.session_state.model_list = model_list
                     st.session_state.decided_model = True
 
+            # Display results
             if st.session_state["decided_model"]:
                 display_results(st.session_state.X)
                 st.session_state["all_set"] = True
             
+            # Download models
             if st.session_state["all_set"]:
                 download_col1, download_col2, download_col3 = st.columns(3)
                 with download_col1:
@@ -181,6 +183,7 @@ def cluster_model_pipeline(DF, API_KEY, GPT_MODEL):
                 with download_col3:
                     st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
 
+    # Footer
     st.divider()
     if "all_set" in st.session_state and st.session_state["all_set"]:
         if "has_been_set" not in st.session_state:

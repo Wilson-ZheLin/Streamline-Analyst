@@ -4,6 +4,19 @@ from sklearn.mixture import GaussianMixture
 
 @st.cache_data
 def train_select_cluster_model(X_train, n, model_type, model_params=None):
+    """
+    Trains a clustering model based on the specified model type and parameters.
+
+    Parameters:
+    - X_train (array-like): The training data set.
+    - n (int): The number of clusters to form or the number of components for the Gaussian Mixture model.
+    - model_type (int): An integer representing the type of model to train. 
+        1 for KMeans, 2 for DBSCAN, 3 for GaussianMixture, 4 for Hierarchical clustering, and 5 for Spectral clustering.
+    - model_params (dict, optional): A dictionary of model-specific parameters. Default is None.
+
+    Returns:
+    - The trained clustering model object based on the specified model type.
+    """
     if model_type == 1:
         return KMeans_train(X_train, n, model_params)
     elif model_type == 2:

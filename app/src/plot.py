@@ -14,6 +14,9 @@ from nltk import regexp_tokenize
 
 # Single attribute visualization
 def distribution_histogram(df, attribute):
+    """
+    Histogram of the distribution of a single attribute.
+    """
     if df[attribute].dtype == 'object' or pd.api.types.is_categorical_dtype(df[attribute]):
         codes, uniques = pd.factorize(df[attribute])
         temp_df = pd.DataFrame({attribute: codes})
@@ -29,6 +32,9 @@ def distribution_histogram(df, attribute):
     return fig
 
 def distribution_boxplot(df, attribute):
+    """
+    Boxplot of the distribution of a single attribute.
+    """
     if df[attribute].dtype == 'object' or pd.api.types.is_categorical_dtype(df[attribute]):
         return -1
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -37,6 +43,9 @@ def distribution_boxplot(df, attribute):
     return fig
 
 def count_Y(df, Y_name):
+    """
+    Donut chart of the distribution of a single attribute.
+    """
     if Y_name in df.columns and df[Y_name].nunique() >= 1:
         value_counts = df[Y_name].value_counts()
         fig = px.pie(names=value_counts.index, 
@@ -47,6 +56,9 @@ def count_Y(df, Y_name):
         return fig
 
 def density_plot(df, column_name):
+    """
+    Density plot of the distribution of a single attribute.
+    """
     if column_name in df.columns:
         fig = px.density_contour(df, x=column_name, y=column_name,
                                  title=f'Density Plot of {column_name}',
@@ -55,6 +67,9 @@ def density_plot(df, column_name):
 
 # Mutiple attribute visualization
 def box_plot(df, column_names):
+    """
+    Box plot of multiple attributes.
+    """
     if len(column_names) > 1 and not all(df[column_names].dtypes.apply(lambda x: np.issubdtype(x, np.number))):
         return -1
     valid_columns = [col for col in column_names if col in df.columns]
@@ -65,6 +80,9 @@ def box_plot(df, column_names):
         return fig
 
 def violin_plot(df, column_names):
+    """
+    Violin plot of multiple attributes.
+    """
     if len(column_names) > 1 and not all(df[column_names].dtypes.apply(lambda x: np.issubdtype(x, np.number))):
         return -1
     valid_columns = [col for col in column_names if col in df.columns]
@@ -75,6 +93,9 @@ def violin_plot(df, column_names):
         return fig
 
 def strip_plot(df, column_names):
+    """
+    Strip plot of multiple attributes.
+    """
     if len(column_names) > 1 and not all(df[column_names].dtypes.apply(lambda x: np.issubdtype(x, np.number))):
         return -1
     valid_columns = [col for col in column_names if col in df.columns]
@@ -85,6 +106,9 @@ def strip_plot(df, column_names):
         return fig
 
 def multi_plot_scatter(df, selected_attributes):
+    """
+    Scatter plot of multiple attributes.
+    """
     if len(selected_attributes) < 2:
         return -1
     
@@ -109,6 +133,9 @@ def multi_plot_scatter(df, selected_attributes):
     return plt.gcf()
     
 def multi_plot_line(df, selected_attributes):
+    """
+    Line plot of multiple attributes.
+    """
     if not all(df[selected_attributes].dtypes.apply(lambda x: np.issubdtype(x, np.number))):
         return -1
     if len(selected_attributes) >= 2:
@@ -125,6 +152,9 @@ def multi_plot_line(df, selected_attributes):
         return -2
     
 def multi_plot_heatmap(df, selected_attributes):
+    """
+    Correlation heatmap of multiple attributes.
+    """
     if not all(df[selected_attributes].dtypes.apply(lambda x: np.issubdtype(x, np.number))):
         return -1
     if len(selected_attributes) >= 1:
@@ -137,6 +167,9 @@ def multi_plot_heatmap(df, selected_attributes):
 # Overall visualization
 @st.cache_data
 def correlation_matrix(df):
+    """
+    Correlation heatmap of all attributes using Seaborn.
+    """
     plt.figure(figsize=(16, 12))
     sns.set(font_scale=0.9)
     sns.heatmap(df.corr(), annot=True, cmap='viridis', annot_kws={"size": 12})
@@ -144,6 +177,9 @@ def correlation_matrix(df):
 
 @st.cache_data
 def correlation_matrix_plotly(df):
+    """
+    Correlation heatmap of all attributes using Plotly.
+    """
     corr_matrix = df.corr()
     labels = corr_matrix.columns
     text = [[f'{corr_matrix.iloc[i, j]:.2f}' for j in range(len(labels))] for i in range(len(labels))]
@@ -168,6 +204,9 @@ def correlation_matrix_plotly(df):
 
 @st.cache_data
 def list_all(df, max_plots=16):
+    """
+    Display histograms of all attributes in the DataFrame.
+    """
 
     # Calculate the number of plots to display (up to 16)
     num_plots = min(len(df.columns), max_plots)
@@ -195,7 +234,11 @@ def list_all(df, max_plots=16):
     plt.subplots_adjust(top=0.95) # Adjust the top to accommodate the title
     return fig
 
+# Model evaluation
 def confusion_metrix(model_name, model, X_test, Y_test):
+    """
+    Confusion matrix plot for classification models
+    """
     Y_pred = model.predict(X_test)
     matrix = confusion_matrix(Y_test, Y_pred)
     plt.figure(figsize=(10, 7)) # temporary
@@ -206,6 +249,9 @@ def confusion_metrix(model_name, model, X_test, Y_test):
     return sns_heatmap.figure
 
 def roc(model_name, fpr, tpr):
+    """
+    ROC curve for classification models
+    """
     fig = plt.figure()
     plt.style.use('ggplot')
     plt.plot([0,1],[0,1],'k--')
@@ -218,6 +264,9 @@ def roc(model_name, fpr, tpr):
     return fig
 
 def plot_clusters(X, labels):
+    """
+    Scatter plot of clusters for clustering models
+    """
     sns.set(style="whitegrid")
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(X)
@@ -234,6 +283,9 @@ def plot_clusters(X, labels):
     return fig
 
 def plot_residuals(y_pred, Y_test):
+    """
+    Residual plot for regression models
+    """
     residuals = Y_test - y_pred
     fig, ax = plt.subplots()
     sns.residplot(x=y_pred, y=residuals, lowess=True, ax=ax, scatter_kws={'alpha': 0.7}, line_kws={'color': 'purple', 'lw': 2})
@@ -243,6 +295,9 @@ def plot_residuals(y_pred, Y_test):
     return fig
 
 def plot_predictions_vs_actual(y_pred, Y_test):
+    """
+    Scatter plot of predicted vs. actual values for regression models
+    """
     fig, ax = plt.subplots()
     ax.scatter(Y_test, y_pred, c='#10a37f', marker='x')
     ax.plot([Y_test.min(), Y_test.max()], [Y_test.min(), Y_test.max()], 'k--', lw=2)
@@ -256,6 +311,9 @@ def plot_predictions_vs_actual(y_pred, Y_test):
     return fig
 
 def plot_qq_plot(y_pred, Y_test):
+    """
+    Quantile-Quantile plot for regression models
+    """
     residuals = Y_test - y_pred
     fig, ax = plt.subplots()
     (osm, osr), (slope, intercept, r) = stats.probplot(residuals, dist="norm", plot=None)
@@ -274,6 +332,14 @@ def plot_qq_plot(y_pred, Y_test):
 # Advanced Visualization
 @st.cache_data
 def word_cloud_plot(text):
+    """
+    Generates and displays a word cloud from the given text.
+    
+    The word cloud visualizes the frequency of occurrence of words in the text, with the size of each word indicating its frequency.
+
+    :param text: The input text from which to generate the word cloud.
+    :return: A matplotlib figure object containing the word cloud if successful, -1 otherwise.
+    """
     try:
         words = regexp_tokenize(text, pattern='\w+')
         text_dist = nltk.FreqDist([w for w in words])
@@ -287,6 +353,16 @@ def word_cloud_plot(text):
 
 @st.cache_data
 def world_map(df, country_column, key_attribute):
+    """
+    Creates a choropleth world map visualization based on the specified DataFrame.
+
+    The function highlights countries based on a key attribute, providing an interactive map that can be used to analyze geographical data distributions.
+
+    :param df: DataFrame containing the data to be visualized.
+    :param country_column: Name of the column in df that contains country names.
+    :param key_attribute: Name of the column in df that contains the data to visualize on the map.
+    :return: A Plotly figure object representing the choropleth map if successful, -1 otherwise.
+    """
     try:
         hover_data_columns = [col for col in df.columns if col != country_column]
         fig = px.choropleth(df, locations="iso_alpha",
@@ -301,6 +377,17 @@ def world_map(df, country_column, key_attribute):
 
 @st.cache_data
 def scatter_3d(df, x, y, z):
+    """
+    Generates a 3D scatter plot from the given DataFrame.
+
+    Each point in the plot corresponds to a row in the DataFrame, with its position determined by three specified columns. Points are colored based on the values of the z-axis.
+
+    :param df: DataFrame containing the data to be visualized.
+    :param x: Name of the column in df to use for the x-axis values.
+    :param y: Name of the column in df to use for the y-axis values.
+    :param z: Name of the column in df to use for the z-axis values and color coding.
+    :return: A Plotly figure object containing the 3D scatter plot if successful, -1 otherwise.
+    """
     try:
         return px.scatter_3d(df, x=x, y=y, z=z, color=z, color_continuous_scale=px.colors.sequential.Viridis)
     except:

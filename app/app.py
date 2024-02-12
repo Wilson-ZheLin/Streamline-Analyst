@@ -10,7 +10,7 @@ from src.util import read_file_from_streamlit
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
 
-# HEADER SECTION
+# TITLE SECTION
 with st.container():
     st.subheader("Hello there 👋")
     st.title("Welcome to Streamline Analyst!")
@@ -25,7 +25,7 @@ with st.container():
         st.write("This is an application for Streamline Analyst.")
         st.write("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)")
 
-# CONTENT SECTION
+# INTRO SECTION
 with st.container():
     st.divider()
     left_column, right_column = st.columns(2)
@@ -80,12 +80,12 @@ with st.container():
     # Initialize the 'button_clicked' state
     if 'button_clicked' not in st.session_state:
         st.session_state.button_clicked = False
-
     if st.button('Start Analysis', disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"):
         st.session_state.button_clicked = True
     if "is_file_empty" in st.session_state and st.session_state.is_file_empty:
         st.caption('Your data file is empty!')
 
+    # Start Analysis
     if st.session_state.button_clicked:
         GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 3.5
         with st.container():

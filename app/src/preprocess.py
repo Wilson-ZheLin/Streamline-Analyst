@@ -4,6 +4,19 @@ from scipy import stats
 from sklearn.preprocessing import StandardScaler, PowerTransformer
 
 def convert_to_numeric(df, convert_int_cols_list, one_hot_cols_list, drop_cols):
+    """
+    Convert specified columns in the DataFrame to numeric formats and drop specified columns.
+    Integer conversion and one-hot encoding are applied based on the provided lists of columns.
+    Returns a modified DataFrame and a dictionary of mappings used for conversions.
+
+    :param df: Pandas DataFrame to be processed.
+    :param convert_int_cols_list: List of column names to be converted to integer type.
+    :param one_hot_cols_list: List of column names to be converted to one-hot encoding.
+    :param drop_cols: List of column names to be dropped from the DataFrame.
+    :return: A tuple with two elements:
+             1. DataFrame with specified columns converted and specified columns dropped.
+             2. Dictionary of mappings for each conversion type ('integer_mappings' and 'one_hot_mappings').
+    """
     df, int_mapping = convert_to_integer(df, convert_int_cols_list)
     df, one_hot_mapping = convert_to_one_hot(df, one_hot_cols_list)
     df = df.drop(columns=drop_cols, errors='ignore')
@@ -78,9 +91,20 @@ def remove_rows_with_empty_target(df, Y_name):
     return cleaned_df
 
 def remove_duplicates(df):
+    """
+    Remove duplicate rows from the DataFrame.
+    """
     return df.drop_duplicates()
 
 def transform_data_for_clustering(df):
+    """
+    Transform numeric columns in the DataFrame for clustering.
+    Applies a PowerTransformer to columns with skewness over a threshold and standardizes them.
+    This can help in making the clustering algorithm more effective by normalizing the scale of numerical features.
+
+    :param df: Pandas DataFrame to be transformed.
+    :return: DataFrame with transformed numeric columns suitable for clustering.
+    """
     numeric_cols = df.select_dtypes(include=[np.number]).columns
     transformed_df = df.copy()
     pt = PowerTransformer(method='box-cox', standardize=False)

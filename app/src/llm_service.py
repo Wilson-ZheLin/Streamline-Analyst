@@ -210,24 +210,24 @@ def decide_target_attribute(attributes, types_info, head_info, model_type = 4, u
     Raises:
     - Exception: If unable to access the OpenAI API or another error occurs.
     """
-    try:
-        model_name = model4_name if model_type == 4 else model3_name
-        user_api_key = api_key if user_api_key is None else user_api_key
-        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+    # try:
+    model_name = model4_name if model_type == 4 else model3_name
+    user_api_key = api_key if user_api_key is None else user_api_key
+    llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
-        template = config["decide_target_attribute_template"]
-        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info"], template=template)
-        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info)
+    template = config["decide_target_attribute_template"]
+    prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info"], template=template)
+    summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info)
 
-        llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
-        return json.loads(json_str)["target"]
-    except Exception as e:
-        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
-        st.stop()
+    llm_answer = llm([HumanMessage(content=summary_prompt)])
+    if '```json' in llm_answer.content:
+        match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+        if match: json_str = match.group(1)
+    else: json_str = llm_answer.content
+    return json.loads(json_str)["target"]
+    # except Exception as e:
+    #     st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+    #     st.stop()
 
 def decide_test_ratio(shape_info, model_type = 4, user_api_key = None):
     """

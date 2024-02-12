@@ -1,6 +1,6 @@
 # Streamline-Analyst
 
-🪄 Streamline Analyst is an open source, Large Language Models (LLMs) driven **Data Analysis Agent**. Common tasks in data analysis such as data cleaning and preprocessing will be automatically handled by AI. It can also automatically identify target objects, divide test sets, select the most appropriate model for modeling based on data, visualize results evaluation, etc. What user needs to do is to select the data file, choose an analysis mode, and click start. 
+Streamline Analyst 🪄 is an open source, Large Language Models (LLMs) driven **Data Analysis Agent**. Common tasks in data analysis such as data cleaning and preprocessing will be automatically handled by AI. It can also automatically identify target objects, divide test sets, select the most appropriate model for modeling based on data, visualize results evaluation, etc. What user needs to do is to select the data file, choose an analysis mode, and click start. 
 
 Streamline Analyst is aimed to accelerate and simplify the entire process of data analysis. Regardless of whether the user has professional data analysis skills, we hope to help users process data and visualization with the highest efficiency, and complete high-performance modeling tasks with the optimal strategies.
 
@@ -8,22 +8,23 @@ Streamline Analyst is aimed to accelerate and simplify the entire process of dat
 
 Features of current version
 ---------------------------
-* LLM determines the target variable
-* LLM decision strategy for null value handling:
+* LLM determines the **target variable**
+* LLM decision strategy for **null value handling**:
     * Mean filling, median filling, mode filling, interpolation filling, introduction of new categories, etc.
-* LLM decision data encoding: 
+* LLM decision **data encoding**: 
     * One-hot encoding, integer mapping, label encoding
-* Principal Component Analysis (PCA) dimensionality reduction
+* Principal Component Analysis (**PCA**) dimensionality reduction
 * Handling duplicate entities
-* Box-Cox transformation and normalization
-* LLM decision strategy to balance the number of entities of the target variable: 
+* **Box-Cox transformation** and **normalization**
+* LLM decision strategy to **balance** the number of entities of the target variable: 
     * Random over-sampling, SMOTE, ADASYN
 * LLM determines the proportion of the data set (can also be adjusted manually)
-* LLM determines the suitable models based on the data and starts training
-* Recommend the number of clusters through the Elbow Rule and Silhouette Coefficient, and real-time adjustment of the cluster number
+* LLM determines the **suitable models** based on the data and **starts training**
+* Recommend the **number of clusters** through the Elbow Rule and Silhouette Coefficient, and real-time adjustment of the cluster number
 * All processed data and models can be downloaded
 
 * Modeling tasks supported:
+
 | **Classification Models**      | **Clustering Models**       | **Regression Models**             |
 |--------------------------------|-----------------------------|-----------------------------------|
 | Logistic regression            | K-means clustering          | Linear regression                 |
@@ -35,6 +36,7 @@ Features of current version
 | XGBoost                        |                             | etc.                              |
 
 * Real-time calculation of model indicators and result visualization:
+
 | **Classification Metrics** | **Clustering Metrics** | **Regression Metrics**        |
 |----------------------------|------------------------|-------------------------------|
 | Model score                | Silhouette score       | R-squared score               |

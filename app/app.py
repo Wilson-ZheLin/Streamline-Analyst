@@ -1,7 +1,7 @@
 import time
 import streamlit as st
 from streamlit_lottie import st_lottie
-from util import load_lottie, stream_data
+from util import load_lottie, stream_data, welcome_message, introduction_message
 from prediction_model import prediction_model_pipeline
 from cluster_model import cluster_model_pipeline
 from regression_model import regression_model_pipeline
@@ -17,30 +17,37 @@ with st.container():
     if 'initialized' not in st.session_state:
         st.session_state.initialized = True
     if st.session_state.initialized:
-        st.write(stream_data("This is an application for Streamline Analyst."))
+        st.session_state.welcome_message = welcome_message()
+        st.write(stream_data(st.session_state.welcome_message))
         time.sleep(0.5)
-        st.write(stream_data("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)"))
+        st.write("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)")
         st.session_state.initialized = False
     else:
-        st.write("This is an application for Streamline Analyst.")
+        st.write(st.session_state.welcome_message)
         st.write("[Github > ](https://github.com/Wilson-ZheLin/Streamline-Analyst)")
 
 # INTRO SECTION
 with st.container():
     st.divider()
-    left_column, right_column = st.columns(2)
-    with left_column:
-        st.header("What is Streamline Analyst?")
-        st.write("""
-                 Streamline Analyst is an application that allows you to analyze your data.
-                 - Upload your data
-                 - Perform data preprocessing
-                 - Perform data analysis
-                 - Perform data visualization
-                 """)
-    with right_column:
-        st_lottie_animation = load_lottie()
-        st_lottie(st_lottie_animation, height=280, key="coding")
+    if 'lottie' not in st.session_state:
+        st.session_state.lottie_url1, st.session_state.lottie_url2 = load_lottie()
+        st.session_state.lottie = True
+
+    left_column_r1, right_column_r1 = st.columns([6, 4])
+    with left_column_r1:
+        st.header("What can Streamline Analyst do?")
+        st.write(introduction_message()[0])
+    with right_column_r1:
+        if st.session_state.lottie:
+            st_lottie(st.session_state.lottie_url1, height=280, key="animation1")
+
+    left_column_r2, _, right_column_r2 = st.columns([6, 1, 5])
+    with left_column_r2:
+        if st.session_state.lottie:
+            st_lottie(st.session_state.lottie_url2, height=200, key="animation2")
+    with right_column_r2:
+        st.header("Simple to Use")
+        st.write(introduction_message()[1])
 
 # MAIN SECTION
 with st.container():

@@ -4,7 +4,8 @@ import yaml
 import time
 import random
 
-config_data = yaml.safe_load('config/config.yaml')
+with open('config/config.yaml', 'r') as file:
+    config_data = yaml.safe_load(file)
 
 def load_lottie():
     r1, r2 = requests.get(config_data['lottie_url1']), requests.get(config_data['lottie_url2'])

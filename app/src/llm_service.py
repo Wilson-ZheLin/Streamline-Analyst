@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
 from langchain.chat_models import ChatOpenAI
 
-config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
+config_path = os.path.join(os.path.dirname(__file__), 'src/config', 'config.yaml')
 with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 model4_name = config["model4_name"]
@@ -108,7 +108,6 @@ def decide_model(shape_info, head_info, nunique_info, description_info, model_ty
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_model_template"]
-        st.write(template)
         prompt_template = PromptTemplate(input_variables=["shape_info", "head_info", "nunique_info", "description_info"], template=template)
         summary_prompt = prompt_template.format(shape_info=shape_info, head_info=head_info, nunique_info=nunique_info, description_info=description_info)
 

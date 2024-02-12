@@ -1,10 +1,10 @@
-# Streamline-Analyst
+# Streamline Analyst: Data Analysis AI Agent
 
-Streamline Analyst 🪄 is an open source, Large Language Models (LLMs) driven **Data Analysis Agent**. Common tasks in data analysis such as data cleaning and preprocessing will be automatically handled by AI. It can also automatically identify target objects, divide test sets, select the most appropriate model for modeling based on data, visualize results evaluation, etc. What user needs to do is to select the data file, choose an analysis mode, and click start. 
+Streamline Analyst 🪄 is an open source, Large Language Models (LLMs) driven **Data Analysis Agent**. In our application, common tasks in data analysis such as data cleaning and preprocessing will be automatically handled by AI. It can also automatically identify target objects, divide test sets, select the most appropriate model for modeling based on data, visualize results evaluation, etc. What user needs to do is to **select the data file**, **choose an analysis mode**, and **click start**. 
 
-Streamline Analyst is aimed to accelerate and simplify the entire process of data analysis. Regardless of whether the user has professional data analysis skills, we hope to help users process data and visualization with the highest efficiency, and complete high-performance modeling tasks with the optimal strategies.
+Streamline Analyst is aimed to accelerate and simplify the entire process of data analysis. Regardless of whether the user has professional data analysis skills, we hope to help users process data and visualization with the highest efficiency🚀, and complete high-performance modeling tasks with the optimal strategies🔮.
 
-*Natural Language Processing (NLP)*, *neural network*, *object detection (using YOLO)* may be added in subsequent versions.
+***Natural Language Processing (NLP)***, ***neural network***, ***object detection (using YOLO)*** may be added in subsequent versions.
 
 Features of current version
 ---------------------------
@@ -37,16 +37,15 @@ Features of current version
 
 * Real-time calculation of model indicators and result visualization:
 
-| **Classification Metrics** | **Clustering Metrics** | **Regression Metrics**        |
-|----------------------------|------------------------|-------------------------------|
-| Model score                | Silhouette score       | R-squared score               |
-| Confusion matrix           | Calinski-Harabasz score| Mean square error (MSE)       |
-| AUC                        | Davies-Bouldin score   | Root mean square error (RMSE) |
-| F1 score                   | Cluster scatter plot   | Absolute error (MAE)          |
-| ROC plot                   | etc.                   | Residual plot                 |
-| etc.                       |                        | Predicted value vs actual value plot |
-|                            |                        | Quantile-Quantile plot        |
-|                            |                        | etc.                          |
+| **Classification Metrics & Plots** | **Clustering Metrics & Plots** | **Regression Metrics & Plots**        |
+|------------------------------------|--------------------------------|---------------------------------------|
+| Model score                        | Silhouette score               | R-squared score                       |
+| Confusion matrix                   | Calinski-Harabasz score        | Mean square error (MSE)               |
+| AUC                                | Davies-Bouldin score           | Root mean square error (RMSE)         |
+| F1 score                           | Cluster scatter plot           | Absolute error (MAE)                  |
+| ROC plot                           | etc.                           | Residual plot                         |
+| etc.                               |                                | Predicted value vs actual value plot  |
+|                                    |                                | Quantile-Quantile plot                |
 
 * Visual analysis(No API Key needed):
     * Single attribute data visualization

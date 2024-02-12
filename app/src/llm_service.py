@@ -108,7 +108,6 @@ def decide_model(shape_info, head_info, nunique_info, description_info, model_ty
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_model_template"]
-        st.write(template)
         prompt_template = PromptTemplate(input_variables=["shape_info", "head_info", "nunique_info", "description_info"], template=template)
         summary_prompt = prompt_template.format(shape_info=shape_info, head_info=head_info, nunique_info=nunique_info, description_info=description_info)
 
@@ -219,7 +218,7 @@ def decide_target_attribute(attributes, types_info, head_info, model_type = 4, u
         template = config["decide_target_attribute_template"]
         prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info"], template=template)
         summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info)
-        st.write(summary_prompt)
+
         llm_answer = llm([HumanMessage(content=summary_prompt)])
         if '```json' in llm_answer.content:
             match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)

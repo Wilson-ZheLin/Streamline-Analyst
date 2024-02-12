@@ -16,3 +16,4 @@ streamlit==1.31.0
 streamlit_lottie==0.0.5
 wordcloud==1.9.3
 xgboost==2.0.3
+statsmodels==0.14.0

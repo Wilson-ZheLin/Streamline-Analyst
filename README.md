@@ -4,9 +4,13 @@ Streamline Analyst 🪄 is a cutting-edge, open-source application powered by La
 
 Here's how it simplifies your workflow: just **select your data file**, **pick an analysis mode**, and **hit start**. Streamline Analyst aims to expedite the data analysis process, making it accessible to all, regardless of their expertise in data analysis. It's built to empower users to process data and achieve high-quality visualizations with unparalleled efficiency🚀, and to execute high-performance modeling with the best strategies🔮.
 
+**Try Our Live Demo Here**: [Streamline Analyst](https://streamline.streamlit.app)
+
+![Screenshot 2024-02-12 at 16 01 01](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/4167b04c-0853-4703-87a4-6c2994e30f9e)
+
 Your data's privacy and security are paramount; rest assured, uploaded data and API Keys are strictly for one-time use and are neither saved nor shared.
 
-Looking ahead, we plan to enhance Streamline Analyst with advanced features like ***Natural Language Processing (NLP)***, **neural networks**, and **object detection (utilizing YOLO)**, broadening its capabilities to meet more diverse data analysis needs.
+Looking ahead, we plan to enhance Streamline Analyst with advanced features like ***Natural Language Processing (NLP)***, ***neural networks***, and ***object detection (utilizing YOLO)***, broadening its capabilities to meet more diverse data analysis needs.
 
 Current Version Features
 ------------------------
@@ -22,6 +26,14 @@ Current Version Features
 * **Cluster Number Recommendation**: Leveraging the Elbow Rule and Silhouette Coefficient for optimal cluster numbers, with the flexibility of real-time adjustments
 
 All processed data and models are made available for download, offering a comprehensive, user-friendly data analysis toolkit.
+
+### Modeling and Results Visualization
+
+![Screenshot 2024-02-12 at 16 10 35](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/423da7be-63f1-491d-9ebe-6a788c440c40)
+
+### Automated Workflow Interface
+
+![Screenshot 2024-02-12 at 16 20 19](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/9d04d5f2-4f2a-44eb-ab8b-c07c8c0c5a53)
 
 ### Supported Modeling tasks
 
@@ -59,6 +71,8 @@ Streamline Analyst 🪄 offers an array of intuitive visual tools for enhanced d
 
 Demo
 ----
+
+**Demo link available at**: [Streamline Analyst](https://streamline.streamlit.app)
 
 
 Getting started

@@ -1,4 +1,4 @@
-# Streamline Analyst: Data Analysis AI Agent
+# Streamline Analyst: A Data Analysis AI Agent
 
 Streamline Analyst 🪄 is a cutting-edge, open-source tool powered by Large Language Models (LLMs) designed to revolutionize data analysis. This **Data Analysis Agent** effortlessly automates routine tasks such as data cleaning, preprocessing, and even complex operations like identifying target objects, partitioning test sets, and selecting the best-fit models based on your data. With Streamline Analyst, results visualization and evaluation become seamless.
 
@@ -23,7 +23,7 @@ Current Version Features
 
 All processed data and models are made available for download, offering a comprehensive, user-friendly data analysis toolkit.
 
-* **Modeling tasks supported**:
+### Supported Modeling tasks
 
 | **Classification Models**      | **Clustering Models**       | **Regression Models**             |
 |--------------------------------|-----------------------------|-----------------------------------|
@@ -35,7 +35,7 @@ All processed data and models are made available for download, offering a compre
 | AdaBoost                       | etc.                        | Gradient boosting regression      |
 | XGBoost                        |                             | etc.                              |
 
-* **Real-time calculation of model indicators and result visualization**:
+### Real-time calculation of model indicators and result visualization
 
 | **Classification Metrics & Plots** | **Clustering Metrics & Plots** | **Regression Metrics & Plots**        |
 |------------------------------------|--------------------------------|---------------------------------------|
@@ -47,13 +47,15 @@ All processed data and models are made available for download, offering a compre
 | etc.                               |                                | Predicted value vs actual value plot  |
 |                                    |                                | Quantile-Quantile plot                |
 
-* **Visual analysis**(No API Key needed):
-    * Single attribute data visualization
-    * Multi-attribute data visualization
-    * Three-dimensional plot
-    * Word Cloud frequency analysis
-    * World heat map
-    * etc.
+### Visual Analysis Toolkit
+
+Streamline Analyst 🪄 offers an array of intuitive visual tools for enhanced data insight, **without the need for an API Key**:
+
+* **Single Attribute Visualization**: Insightful views into individual data aspects
+* **Multi-Attribute Visualization**: Comprehensive analysis of variable interrelations
+* **Three-Dimensional Plotting**: Advanced 3D representations for complex data relationships
+* **Word Clouds**: Key themes and concepts highlighted through word frequency
+* **World Heat Maps**: Geographic trends and distributions made visually accessible
 
 Demo
 ----

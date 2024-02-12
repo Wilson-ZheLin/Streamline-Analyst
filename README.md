@@ -1,29 +1,29 @@
 # Streamline Analyst: Data Analysis AI Agent
 
-Streamline Analyst 🪄 is an open source, Large Language Models (LLMs) driven **Data Analysis Agent**. In our application, common tasks in data analysis such as data cleaning and preprocessing will be automatically handled by AI. It can also automatically identify target objects, divide test sets, select the most appropriate model for modeling based on data, visualize results evaluation, etc. What user needs to do is to **select the data file**, **choose an analysis mode**, and **click start**. 
+Streamline Analyst 🪄 is a cutting-edge, open-source tool powered by Large Language Models (LLMs) designed to revolutionize data analysis. This **Data Analysis Agent** effortlessly automates routine tasks such as data cleaning, preprocessing, and even complex operations like identifying target objects, partitioning test sets, and selecting the best-fit models based on your data. With Streamline Analyst, results visualization and evaluation become seamless.
 
-Streamline Analyst is aimed to accelerate and simplify the entire process of data analysis. Regardless of whether the user has professional data analysis skills, we hope to help users process data and visualization with the highest efficiency🚀, and complete high-performance modeling tasks with the optimal strategies🔮.
+Here's how it simplifies your workflow: just **select your data file**, **pick an analysis mode**, and **hit start**. Streamline Analyst aims to expedite the data analysis process, making it accessible to all, regardless of their expertise in data analysis. It's built to empower users to process data and achieve high-quality visualizations with unparalleled efficiency🚀, and to execute high-performance modeling with the best strategies🔮.
 
-***Natural Language Processing (NLP)***, ***neural network***, ***object detection (using YOLO)*** may be added in subsequent versions.
+Your data's privacy and security are paramount; rest assured, uploaded data and API Keys are strictly for one-time use and are neither saved nor shared.
 
-Features of current version
----------------------------
-* LLM determines the **target variable**
-* LLM decision strategy for **null value handling**:
-    * Mean filling, median filling, mode filling, interpolation filling, introduction of new categories, etc.
-* LLM decision **data encoding**: 
-    * One-hot encoding, integer mapping, label encoding
-* Principal Component Analysis (**PCA**) dimensionality reduction
-* Handling duplicate entities
-* **Box-Cox transformation** and **normalization**
-* LLM decision strategy to **balance** the number of entities of the target variable: 
-    * Random over-sampling, SMOTE, ADASYN
-* LLM determines the proportion of the data set (can also be adjusted manually)
-* LLM determines the **suitable models** based on the data and **starts training**
-* Recommend the **number of clusters** through the Elbow Rule and Silhouette Coefficient, and real-time adjustment of the cluster number
-* All processed data and models can be downloaded
+Looking ahead, we plan to enhance Streamline Analyst with advanced features like ***Natural Language Processing (NLP)***, **neural networks**, and **object detection (utilizing YOLO)**, broadening its capabilities to meet more diverse data analysis needs.
 
-* Modeling tasks supported:
+Current Version Features
+------------------------
+* **Target Variable Identification**: LLMs adeptly pinpoint the target variable
+* **Null Value Management**: Choose from a variety of strategies such as mean, median, mode filling, interpolation, or introducing new categories for handling missing data, all recommended by LLMs
+* **Data Encoding Tactics**: Automated suggestions and completions for the best encoding methods, including one-hot, integer mapping, and label encoding
+* **Dimensionality Reduction with PCA**
+* **Duplicate Entity Resolution**
+* **Data Transformation and Normalization**: Utilize Box-Cox transformation and normalization techniques to improve data distribution and scalability
+* **Balancing Target Variable Entities**: LLM-recommended methods like random over-sampling, SMOTE, and ADASYN help balance data sets, crucial for unbiased model training
+* **Data Set Proportion Adjustment**: LLM determines the proportion of the data set (can also be adjusted manually)
+* **Model Selection and Training**: Based on your data, LLMs recommend and initiate training with the most suitable models
+* **Cluster Number Recommendation**: Leveraging the Elbow Rule and Silhouette Coefficient for optimal cluster numbers, with the flexibility of real-time adjustments
+
+All processed data and models are made available for download, offering a comprehensive, user-friendly data analysis toolkit.
+
+* **Modeling tasks supported**:
 
 | **Classification Models**      | **Clustering Models**       | **Regression Models**             |
 |--------------------------------|-----------------------------|-----------------------------------|
@@ -35,7 +35,7 @@ Features of current version
 | AdaBoost                       | etc.                        | Gradient boosting regression      |
 | XGBoost                        |                             | etc.                              |
 
-* Real-time calculation of model indicators and result visualization:
+* **Real-time calculation of model indicators and result visualization**:
 
 | **Classification Metrics & Plots** | **Clustering Metrics & Plots** | **Regression Metrics & Plots**        |
 |------------------------------------|--------------------------------|---------------------------------------|
@@ -47,15 +47,13 @@ Features of current version
 | etc.                               |                                | Predicted value vs actual value plot  |
 |                                    |                                | Quantile-Quantile plot                |
 
-* Visual analysis(No API Key needed):
+* **Visual analysis**(No API Key needed):
     * Single attribute data visualization
     * Multi-attribute data visualization
     * Three-dimensional plot
     * Word Cloud frequency analysis
     * World heat map
     * etc.
-
-*Note: The uploaded data and API Key are for one-time use and WILL NOT be saved or shared in any form.*
 
 Demo
 ----

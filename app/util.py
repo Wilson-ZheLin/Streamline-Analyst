@@ -3,8 +3,10 @@ import requests
 import yaml
 import time
 import random
+import os
 
-with open('config/config.yaml', 'r') as file:
+config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
+with open(config_path, 'r') as file:
     config_data = yaml.safe_load(file)
 
 def load_lottie():

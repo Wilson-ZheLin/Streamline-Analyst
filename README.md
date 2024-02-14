@@ -6,9 +6,9 @@ Here's how it simplifies your workflow: just **select your data file**, **pick a
 
 **Try Our Live Demo Here**: [Streamline Analyst](https://streamline.streamlit.app)
 
-![Screenshot 2024-02-12 at 16 01 01](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/4167b04c-0853-4703-87a4-6c2994e30f9e)
-
 Your data's privacy and security are paramount; rest assured, uploaded data and API Keys are strictly for one-time use and are neither saved nor shared.
+
+![Screenshot 2024-02-12 at 16 01 01](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/4167b04c-0853-4703-87a4-6c2994e30f9e)
 
 Looking ahead, we plan to enhance Streamline Analyst with advanced features like ***Natural Language Processing (NLP)***, ***neural networks***, and ***object detection (utilizing YOLO)***, broadening its capabilities to meet more diverse data analysis needs.
 
@@ -27,15 +27,15 @@ Current Version Features
 
 All processed data and models are made available for download, offering a comprehensive, user-friendly data analysis toolkit.
 
-### Modeling and Results Visualization
+### Modeling and Results Visualization:
 
 ![Screenshot 2024-02-12 at 16 10 35](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/423da7be-63f1-491d-9ebe-6a788c440c40)
 
-### Automated Workflow Interface
+### Automated Workflow Interface:
 
 ![Screenshot 2024-02-12 at 16 20 19](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/9d04d5f2-4f2a-44eb-ab8b-c07c8c0c5a53)
 
-### Supported Modeling tasks
+### Supported Modeling tasks:
 
 | **Classification Models**      | **Clustering Models**       | **Regression Models**             |
 |--------------------------------|-----------------------------|-----------------------------------|
@@ -47,7 +47,7 @@ All processed data and models are made available for download, offering a compre
 | AdaBoost                       | etc.                        | Gradient boosting regression      |
 | XGBoost                        |                             | etc.                              |
 
-### Real-time calculation of model indicators and result visualization
+### Real-time calculation of model indicators and result visualization:
 
 | **Classification Metrics & Plots** | **Clustering Metrics & Plots** | **Regression Metrics & Plots**        |
 |------------------------------------|--------------------------------|---------------------------------------|
@@ -59,7 +59,7 @@ All processed data and models are made available for download, offering a compre
 | etc.                               |                                | Predicted value vs actual value plot  |
 |                                    |                                | Quantile-Quantile plot                |
 
-### Visual Analysis Toolkit
+### Visual Analysis Toolkit:
 
 Streamline Analyst 🪄 offers an array of intuitive visual tools for enhanced data insight, **without the need for an API Key**:
 
@@ -74,9 +74,10 @@ Demo
 
 **Demo link available at**: [Streamline Analyst](https://streamline.streamlit.app)
 
+https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-1426-4126-b210-e7e529a34c4a
 
-Getting started
----------------
+Local Installation
+------------------
 
 ### Prerequisites
 

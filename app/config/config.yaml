@@ -1,6 +1,6 @@
 lottie_url1: "https://lottie.host/f89e48e2-55e5-4fdf-a406-0be2b00cc2af/ECJa6PGrCV.json"
 lottie_url2: "https://lottie.host/05824020-0a23-4373-8418-721bd6e68504/FE5XXRT455.json"
-welcome_template: "Streamline Analyst 🪄 is an advanced, open-source application powered by LLMs that streamlines the entire process of data analysis. It automates tasks from data cleaning to model validation, simplifying complex data tasks with precision."
+welcome_template: "Streamline Analyst 🪄 is an advanced, open-source application powered by LLMs that streamlines the entire process of data analysis. It automates all the tasks from data preprocessing to model testing, simplifying complex data tasks with precision."
 introduction_template1: |
   As a data analysis agent, **Streamline Analyst** is capable of making autonomous decisions based on your data:
   - Effortless Data Preprocessing

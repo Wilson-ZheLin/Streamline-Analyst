@@ -37,15 +37,15 @@ All processed data and models are made available for download, offering a compre
 
 ### Supported Modeling tasks:
 
-| **Classification Models**      | **Clustering Models**       | **Regression Models**             |
-|--------------------------------|-----------------------------|-----------------------------------|
-| Logistic regression            | K-means clustering          | Linear regression                 |
-| Random forest                  | DBSCAN                      | Ridge regression                  |
-| Support vector machine         | Gaussian mixture model      | Lasso regression                  |
-| Gradient boosting machine      | Hierarchical clustering     | Elastic net regression            |
-| Gaussian Naive Bayes           | Spectral clustering         | Random forest regression          |
-| AdaBoost                       | etc.                        | Gradient boosting regression      |
-| XGBoost                        |                             | etc.                              |
+| **Classification Models**        | **Clustering Models**         | **Regression Models**               |
+|----------------------------------|-------------------------------|-------------------------------------|
+| Logistic regression              | K-means clustering            | Linear regression                   |
+| Random forest                    | DBSCAN                        | Ridge regression                    |
+| Support vector machine           | Gaussian mixture model        | Lasso regression                    |
+| Gradient boosting machine        | Hierarchical clustering       | Elastic net regression              |
+| Gaussian Naive Bayes             | Spectral clustering           | Random forest regression            |
+| AdaBoost                         | etc.                          | Gradient boosting regression        |
+| XGBoost                          |                               | etc.                                |
 
 ### Real-time calculation of model indicators and result visualization:
 

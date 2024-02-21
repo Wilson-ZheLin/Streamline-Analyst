@@ -6,6 +6,8 @@ Here's how it simplifies your workflow: just **select your data file**, **pick a
 
 **Try Our Live Demo Here**: [Streamline Analyst](https://streamline.streamlit.app)
 
+<small>When utilizing `GPT-4 turbo`, the cost for each comprehensive end-to-end API request is roughly <strong>$0.02</strong>.</small>
+
 Your data's privacy and security are paramount; rest assured, uploaded data and API Keys are strictly for one-time use and are neither saved nor shared.
 
 ![Screenshot 2024-02-12 at 16 01 01](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/4167b04c-0853-4703-87a4-6c2994e30f9e)

@@ -14,6 +14,13 @@ Your data's privacy and security are paramount; rest assured, uploaded data and 
 
 Looking ahead, we plan to enhance Streamline Analyst with advanced features like ***Natural Language Processing (NLP)***, ***neural networks***, and ***object detection (utilizing YOLO)***, broadening its capabilities to meet more diverse data analysis needs.
 
+Demo
+----
+
+https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-1426-4126-b210-e7e529a34c4a
+
+**Demo link available at**: [Streamline Analyst](https://streamline.streamlit.app)
+
 Current Version Features
 ------------------------
 * **Target Variable Identification**: LLMs adeptly pinpoint the target variable
@@ -70,13 +77,6 @@ Streamline Analyst 🪄 offers an array of intuitive visual tools for enhanced d
 * **Three-Dimensional Plotting**: Advanced 3D representations for complex data relationships
 * **Word Clouds**: Key themes and concepts highlighted through word frequency
 * **World Heat Maps**: Geographic trends and distributions made visually accessible
-
-Demo
-----
-
-**Demo link available at**: [Streamline Analyst](https://streamline.streamlit.app)
-
-https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-1426-4126-b210-e7e529a34c4a
 
 Local Installation
 ------------------

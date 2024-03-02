@@ -15,7 +15,7 @@ Token花费：<small>以使用`GPT-4 turbo`模型为例，每次完整的全流�
 主页
 ----
 
-https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-1426-4126-b210-e7e529a34c4a
+https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/1d30faca-f474-42fd-b20b-c93ed7cf6d13
 
 **在线Demo链接**: [Streamline Analyst](https://streamline.streamlit.app)
 

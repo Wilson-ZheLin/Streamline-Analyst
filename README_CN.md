@@ -1,21 +1,23 @@
-# Streamline Analyst: 数据分析AI Agent
+# Streamline Analyst: 数据分析领域的AI Agent
+
+Languages / 语言选择: [中文](https://github.com/Wilson-ZheLin/Streamline-Analyst/blob/main/README_CN.md) | [English](https://github.com/Wilson-ZheLin/Streamline-Analyst)
 
 **Streamline Analyst**🪄是一个开源的基于GPT-4这样的大语言模型的应用，目标简化数据分析中从数据清洗到模型测试的全部流程。分类预测、聚类、回归、数据集可视化、数据预处理、编码、特征选择、目标属性判断、可视化、最佳模型选择等等任务都可自主决策和执行。用户需要做的只有**选择数据文件**、**选择分析模式**，剩下的工作就可以让AI来接管了🔮。所有处理后的数据和训练的模型都可下载。
 
-API Key：<small>以使用`GPT-4 turbo`模型为例，每次完整的全流程分析花费的token大约为<strong>$0.02</strong>。</small>
+Token花费：<small>以使用`GPT-4 turbo`模型为例，每次完整的全流程分析花费的token大约为<strong>$0.02</strong>。</small>
 
-任何上传的数据和API Keys不会以任何形式储存或分享。
+*所有上传的数据和API Keys不会以任何形式储存或分享！
 
 ![Screenshot 2024-02-12 at 16 01 01](https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/4167b04c-0853-4703-87a4-6c2994e30f9e)
 
-未来版本预计更新功能：***自然语言处理 (NLP)***、***卷积/循环神经网络***、***目标检测 (基于YOLO)***...
+未来版本预期更新功能：***自然语言处理 (NLP)***、***卷积/循环神经网络***、***目标检测 (基于YOLO)***...
 
-Demo
+主页
 ----
 
 https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-1426-4126-b210-e7e529a34c4a
 
-**Demo链接**: [Streamline Analyst](https://streamline.streamlit.app)
+**在线Demo链接**: [Streamline Analyst](https://streamline.streamlit.app)
 
 当前版本功能
 ----------
@@ -31,7 +33,7 @@ https://github.com/Wilson-ZheLin/Streamline-Analyst/assets/145169519/56884ea5-14
 * **模型选择和训练**: LLM 根据数据推荐并使用最适合的模型进行训练
 * **群集数量推荐**: 对于聚类任务，使用肘部法则和轮廓系数推荐最佳群集数量（可手动调整）
 
-所有处理过的数据和模型都可供下载
+- 所有处理过的数据和模型都可供下载
 
 ### 建模和结果可视化:
 
@@ -75,20 +77,20 @@ Streamline Analyst 🪄 提供了一系列直观的可视化工具，这部分�
 * **三维绘图**: 复杂数据关系的3D可视化
 * **Word Clouds**: 通过词频突出关键主题和概念
 * **世界热力图**: 使地理趋势和分布可视化
-* 更多正在开发...
+* 更多图表正在开发中...
 
 
 本地运行安装
 ----------
 
-### Prerequisites
+### 环境&前置准备
 
 运行 `app.py`, 首先需要:
 * [Python 3.11.5](https://www.python.org/downloads/)
 * [OpenAI API Key](https://openai.com/blog/openai-api)
     * OpenAI: 注意免费API的额度可能不支持GPT-4模型
     
-### Installation
+### 安装和运行
 1. 安装所需的依赖包
 
 ```

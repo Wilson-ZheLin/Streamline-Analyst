@@ -1,5 +1,7 @@
 # Streamline Analyst: A Data Analysis AI Agent
 
+Languages / 语言选择: [English](https://github.com/Wilson-ZheLin/Streamline-Analyst) | [中文](https://github.com/Wilson-ZheLin/Streamline-Analyst/blob/main/README_CN.md)
+
 Streamline Analyst 🪄 is a cutting-edge, open-source application powered by Large Language Models (LLMs) designed to revolutionize data analysis. This **Data Analysis Agent** effortlessly automates all the tasks such as data cleaning, preprocessing, and even complex operations like identifying target objects, partitioning test sets, and selecting the best-fit models based on your data. With Streamline Analyst, results visualization and evaluation become seamless.
 
 Here's how it simplifies your workflow: just **select your data file**, **pick an analysis mode**, and **hit start**. Streamline Analyst aims to expedite the data analysis process, making it accessible to all, regardless of their expertise in data analysis. It's built to empower users to process data and achieve high-quality visualizations with unparalleled efficiency🚀, and to execute high-performance modeling with the best strategies🔮.

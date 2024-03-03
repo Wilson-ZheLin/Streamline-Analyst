@@ -1,4 +1,4 @@
-# Streamline Analyst: 数据分析领域的AI Agent
+# Streamline Analyst: 数据分析领域的 AI Agent
 
 Languages / 语言选择: [中文](https://github.com/Wilson-ZheLin/Streamline-Analyst/blob/main/README_CN.md) | [English](https://github.com/Wilson-ZheLin/Streamline-Analyst)
 

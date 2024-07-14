@@ -8,6 +8,13 @@ from regression_model import regression_model_pipeline
 from visualization import data_visualization
 from src.util import read_file_from_streamlit
 
+import os
+from dotenv import load_dotenv
+
+
+# Load environment variables from .env file
+load_dotenv()
+
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
 
 # TITLE SECTION
@@ -49,6 +56,8 @@ with st.container():
         st.header("Simple to Use")
         st.write(introduction_message()[1])
 
+api_key = os.getenv('OPENAI_KEY')
+
 # MAIN SECTION
 with st.container():
     st.divider()
@@ -58,6 +67,7 @@ with st.container():
         API_KEY = st.text_input(
             "Your API Key won't be stored or shared!",
             placeholder="Enter your API key here...",
+            value=api_key
         )
         st.write("👆Your OpenAI API key:")
         uploaded_file = st.file_uploader("Choose a data file. Your data won't be stored as well!", accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
@@ -72,11 +82,11 @@ with st.container():
     with right_column:
         SELECTED_MODEL = st.selectbox(
         'Which OpenAI model do you want to use?',
-        ('GPT-4-Turbo', 'GPT-3.5-Turbo'))
+        ('GPT-3.5-Turbo', 'GPT-4-Turbo'))
 
         MODE = st.selectbox(
         'Select proper data analysis mode',
-        ('Predictive Classification', 'Clustering Model', 'Regression Model', 'Data Visualization'))
+        ('Data Visualization', 'Predictive Classification', 'Clustering Model', 'Regression Model'))
         
         st.write(f'Model selected: :green[{SELECTED_MODEL}]')
         st.write(f'Data analysis mode: :green[{MODE}]')

@@ -2,6 +2,54 @@ import streamlit as st
 from util import developer_info_static
 from src.plot import list_all, distribution_histogram, distribution_boxplot, count_Y, box_plot, violin_plot, strip_plot, density_plot ,multi_plot_heatmap, multi_plot_scatter, multi_plot_line, word_cloud_plot, world_map, scatter_3d
 
+import pandas as pd
+
+
+def preprocessing(df):
+    # Drop Unname column
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+
+    column_type = {
+        "date" : ["Ngày"],
+        "string": ['Địa chỉ','Quận','Huyện','Loại hình nhà ở','Giấy tờ pháp lý'],
+        "number": ["Số tầng","Số phòng ngủ","Diện tích",'Dài','Rộng','Giá/m2']
+    }
+
+    for column in df.columns:
+        if column in column_type['string']:
+            df.loc[:, column] = df[column].fillna("Không xác định")
+        # if column in column_type['date']:
+            # df.loc[:, column] = pd.to_datetime(df[column],format="%Y-%m-%d", errors='coerce')
+        
+    #   if column in column_type['number']:
+    #     df.loc[:, column] = df[column].fillna("0.0")
+    #     # df.loc[:, column] = df[column].str.replace(',', '', regex=False).astype(float)
+    
+    remove_unit = {
+        "Số phòng ngủ": [('phòng',''),('nhiều hơn 10', '11'),('Nhiều hơn 10', '11')], 
+        "Diện tích": [('m²','')], 
+        "Dài": [('m','')], 
+        "Rộng": [('m','')], 
+        "Giá/m2":  [(' triệu/m²','000000'),(' đ/m²','0'),(' tỷ/m²','000000000')], 
+        "Số tầng":  [('nhiều hơn 10', '11'),('Nhiều hơn 10', '11')], 
+        }
+
+    for column in df.columns:
+        # if column in ["Số phòng ngủ", 'Số tầng']:
+        #   df.loc[:, column] = df[column].str.replace('nhiều hơn 10', '11', regex=False)
+        #   df.loc[:, column] = df[column].str.replace('Nhiều hơn 10', '11', regex=False)
+            
+        if column in remove_unit:
+            for patern, new_value in remove_unit[column]:
+                df.loc[:, column] = df[column].str.replace(patern, new_value, regex=False)
+            
+    for column in column_type['number']:
+        df.loc[:, column] = df[column].str.replace(',', '', regex=False).astype(float)
+    
+    # print(df)
+        
+    return df
+            
 def display_word_cloud(text):
     _, word_cloud_col, _ = st.columns([1, 3, 1])
     with word_cloud_col:
@@ -14,6 +62,10 @@ def display_word_cloud(text):
 def data_visualization(DF):
     st.divider()
     st.subheader('Data Visualization')
+        
+    # preprocessing
+    DF = preprocessing(DF)
+    
     attributes = DF.columns.tolist()
 
     # Three tabs for three kinds of visualization
@@ -21,9 +73,6 @@ def data_visualization(DF):
     
     # Single attribute visualization
     with single_tab:
-        _, col_mid, _ = st.columns([1, 5, 1])
-        with col_mid:
-            plot_area = st.empty()
             
         col1, col2 = st.columns(2)
         with col1:
@@ -43,6 +92,11 @@ def data_visualization(DF):
                 index = 0
             )
             st.write(f'Plot type selected: :green[{plot_type}]')
+            
+        _, col_mid, _ = st.columns([1, 5, 1])
+        with col_mid:
+            plot_area = st.empty()
+
 
         if plot_type == 'Distribution histogram':
             fig = distribution_histogram(DF, att)
@@ -212,10 +266,12 @@ def data_visualization(DF):
     st.subheader('Data Overview')
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
-    st.dataframe(st.session_state.data_origin.describe(), width=1200)
-    if 'overall_plot' not in st.session_state:
-        st.session_state.overall_plot = list_all(st.session_state.data_origin)
-    st.pyplot(st.session_state.overall_plot)
+        
+    # st.dataframe(st.session_state.data_origin.describe(), width=1200)
+    st.dataframe(st.session_state.data_origin.head())
+    # if 'overall_plot' not in st.session_state:
+    #     st.session_state.overall_plot = list_all(st.session_state.data_origin)
+    # st.pyplot(st.session_state.overall_plot)
 
     st.divider()
     developer_info_static()

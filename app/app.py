@@ -5,7 +5,7 @@ from util import load_lottie, stream_data, welcome_message, introduction_message
 from prediction_model import prediction_model_pipeline
 from cluster_model import cluster_model_pipeline
 from regression_model import regression_model_pipeline
-from visualization import data_visualization, preprocessing
+from src.visualization import data_visualization, preprocessing
 from src.util import read_file_from_streamlit
 
 import os
@@ -107,7 +107,7 @@ with st.container():
 
     # Start Analysis
     if st.session_state.button_clicked:
-        GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 3.5
+        GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 'gpt-3.5-turbo-1106'
         with st.container():
             if "DF_uploaded" not in st.session_state:
                 st.error("File is empty!")

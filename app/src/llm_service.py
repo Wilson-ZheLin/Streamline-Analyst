@@ -5,7 +5,8 @@ import re
 import streamlit as st
 from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
-from langchain.chat_models import ChatOpenAI
+# from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 
 config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
 with open(config_path, 'r') as file:

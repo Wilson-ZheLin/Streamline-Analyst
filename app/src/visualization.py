@@ -3,9 +3,9 @@ import streamlit as st
 from util import developer_info_static
 from src.plot import list_all, distribution_histogram, distribution_boxplot, count_Y, box_plot, violin_plot, strip_plot, density_plot, multi_plot_heatmap, multi_plot_scatter, multi_plot_line, word_cloud_plot, world_map, scatter_3d
 from src.visualization_ai import create_param, predict_visualization_chart, predict_visualization_related_attrs, predict_visualization_related_question, single_attr_chart_visualization_template, multiple_attr_chart_visualization_template
-
+import pandas as pd
 mock_question = '''
-Biểu diễn số phòng
+Thống kê diện tích và chiều dài 
 '''
 
 
@@ -25,9 +25,9 @@ def preprocessing(df):
         # if column in column_type['date']:
             # df.loc[:, column] = pd.to_datetime(df[column],format="%Y-%m-%d", errors='coerce')
 
-    #   if column in column_type['number']:
-    #     df.loc[:, column] = df[column].fillna("0.0")
-    #     # df.loc[:, column] = df[column].str.replace(',', '', regex=False).astype(float)
+        # if column in column_type['number']:
+        #     df.loc[:, column] = df[column].fillna("0.0")
+            # df.loc[:, column] = df[column].str.replace(',', '', regex=False).astype(float)
 
     remove_unit = {
         "Số phòng ngủ": [('phòng', ''), ('nhiều hơn 10', '11'), ('Nhiều hơn 10', '11')],
@@ -52,79 +52,84 @@ def preprocessing(df):
         df.loc[:, column] = df[column].str.replace(
             ',', '', regex=False).astype(float)
 
+        df[column] = pd.to_numeric(df[column], errors='coerce')
+
     # print(df)
+
+    df = df.dropna()
 
     return df
 
 
 def display_chart(DF, plot_type, att, plot_area):
-    if len(att) == 1:
-        att = att[0]
+    with st.spinner(f'Đang vẽ biểu đồ {plot_type}'):
+        if len(att) == 1:
+            att = att[0]
 
-        if plot_type == 'Distribution histogram':
-            fig = distribution_histogram(DF, att)
-            plot_area.pyplot(fig)
-        elif plot_type == 'Distribution boxplot':
-            fig = distribution_boxplot(DF, att)
-            if fig == -1:
-                plot_area.error('Dữ liệu của cột không phải số')
-            else:
+            if plot_type == 'Distribution histogram':
+                fig = distribution_histogram(DF, att)
                 plot_area.pyplot(fig)
-        elif plot_type == 'Donut chart':
-            fig = count_Y(DF, att)
-            plot_area.plotly_chart(fig)
-        elif plot_type == 'Boxplot':
-            fig = box_plot(DF, [att])
-            plot_area.plotly_chart(fig)
-        elif plot_type == 'Violin plot':
-            fig = violin_plot(DF, [att])
-            plot_area.plotly_chart(fig)
-        elif plot_type == 'Strip plot':
-            fig = strip_plot(DF, [att])
-            plot_area.plotly_chart(fig)
-        elif plot_type == 'Density plot':
-            fig = density_plot(DF, att)
-            plot_area.plotly_chart(fig)
-    else:
-        options = att
-        if plot_type == 'Scatter plot':
-            fig = multi_plot_scatter(DF, options)
-            if fig == -1:
-                plot_area.error('Scatter plot yêu cầu 2 thuộc tính')
-            else:
-                plot_area.pyplot(fig)
-        elif plot_type == 'Heatmap':
-            fig = multi_plot_heatmap(DF, options)
-            if fig == -1:
-                plot_area.error('Thuộc tính không phải số')
-            else:
-                plot_area.pyplot(fig)
-        elif plot_type == 'Boxplot':
-            fig = box_plot(DF, options)
-            if fig == -1:
-                plot_area.error('Thuộc tính không phải số')
-            else:
+            elif plot_type == 'Distribution boxplot':
+                fig = distribution_boxplot(DF, att)
+                if fig == -1:
+                    plot_area.error('Dữ liệu của cột không phải số')
+                else:
+                    plot_area.pyplot(fig)
+            elif plot_type == 'Donut chart':
+                fig = count_Y(DF, att)
                 plot_area.plotly_chart(fig)
-        elif plot_type == 'Violin plot':
-            fig = violin_plot(DF, options)
-            if fig == -1:
-                plot_area.error('Thuộc tính không phải số')
-            else:
+            elif plot_type == 'Boxplot':
+                fig = box_plot(DF, [att])
                 plot_area.plotly_chart(fig)
-        elif plot_type == 'Strip plot':
-            fig = strip_plot(DF, options)
-            if fig == -1:
-                plot_area.error('Thuộc tính không phải số')
-            else:
+            elif plot_type == 'Violin plot':
+                fig = violin_plot(DF, [att])
                 plot_area.plotly_chart(fig)
-        elif plot_type == 'Line plot':
-            fig = multi_plot_line(DF, options)
-            if fig == -1:
-                plot_area.error('Thuộc tính không phải số')
-            elif fig == -2:
-                plot_area.error('Line plot yêu cầu 2 thuộc tính')
-            else:
-                plot_area.pyplot(fig)
+            elif plot_type == 'Strip plot':
+                fig = strip_plot(DF, [att])
+                plot_area.plotly_chart(fig)
+            elif plot_type == 'Density plot':
+                fig = density_plot(DF, att)
+                plot_area.plotly_chart(fig)
+        else:
+            options = att
+            if plot_type == 'Scatter plot':
+                fig = multi_plot_scatter(DF, options)
+                if fig == -1:
+                    plot_area.error('Scatter plot yêu cầu 2 thuộc tính')
+                else:
+                    plot_area.pyplot(fig)
+            elif plot_type == 'Heatmap':
+                fig = multi_plot_heatmap(DF, options)
+                if fig == -1:
+                    plot_area.error('Thuộc tính không phải số')
+                else:
+                    plot_area.pyplot(fig)
+            elif plot_type == 'Boxplot':
+                fig = box_plot(DF, options)
+                if fig == -1:
+                    plot_area.error('Thuộc tính không phải số')
+                else:
+                    plot_area.plotly_chart(fig)
+            elif plot_type == 'Violin plot':
+                fig = violin_plot(DF, options)
+                if fig == -1:
+                    plot_area.error('Thuộc tính không phải số')
+                else:
+                    plot_area.plotly_chart(fig)
+            elif plot_type == 'Strip plot':
+                fig = strip_plot(DF, options)
+                if fig == -1:
+                    plot_area.error('Thuộc tính không phải số')
+                else:
+                    plot_area.plotly_chart(fig)
+            elif plot_type == 'Line plot':
+                fig = multi_plot_line(DF, options)
+                if fig == -1:
+                    plot_area.error('Thuộc tính không phải số')
+                elif fig == -2:
+                    plot_area.error('Line plot yêu cầu 2 thuộc tính')
+                else:
+                    plot_area.pyplot(fig)
 
 
 def display_word_cloud(text):
@@ -185,11 +190,12 @@ def data_visualization(DF, API_KEY, GPT_MODEL, question=mock_question):
                     param, single_attr_chart_visualization_template, attrs_value)
 
             st.info(chart_value['reason'])
-        with st.spinner('Đang vẽ biểu đồ'):
+        for chart in chart_value['chart']:
+            st.text(f'Biểu đồ {chart}')
             _, col_mid, _ = st.columns([1, 5, 1])
             with col_mid:
                 plot_area = st.empty()
-            display_chart(DF, chart_value['chart'][0], attrs_value['attrs'], plot_area)
+            display_chart(DF, chart, attrs_value['attrs'], plot_area)
 
     else:
         st.error("Câu hỏi không liên quan đến dữ liệu giá nhà")

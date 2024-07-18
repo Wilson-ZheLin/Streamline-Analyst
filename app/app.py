@@ -1,4 +1,5 @@
 import time
+from data_preprocessing import preprocess_pipeline
 import streamlit as st
 from streamlit_lottie import st_lottie
 from util import load_lottie, stream_data, welcome_message, introduction_message
@@ -11,12 +12,10 @@ from src.util import read_file_from_streamlit
 import os
 from dotenv import load_dotenv
 
-
 # Load environment variables from .env file
 load_dotenv()
 
-st.set_page_config(page_title="Streamline Analyst",
-                   page_icon=":rocket:", layout="wide")
+st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
 
 # TITLE SECTION
 # with st.container():
@@ -57,7 +56,7 @@ st.set_page_config(page_title="Streamline Analyst",
 #         st.header("Simple to Use")
 #         st.write(introduction_message()[1])
 
-api_key = os.getenv('OPENAI_KEY')
+api_key = os.getenv("OPENAI_KEY")
 
 # MAIN SECTION
 with st.container():
@@ -66,62 +65,62 @@ with st.container():
     left_column, right_column = st.columns([6, 4])
     with left_column:
         API_KEY = st.text_input(
-            "Your API Key won't be stored or shared!",
-            placeholder="Enter your API key here...",
-            value=api_key
+            "Your API Key won't be stored or shared!", placeholder="Enter your API key here...", value=api_key
         )
         st.write("👆Your OpenAI API key:")
-        uploaded_file = st.file_uploader("Choose a data file. Your data won't be stored as well!",
-                                         accept_multiple_files=False, type=['csv', 'json', 'xls', 'xlsx'])
+        uploaded_file = st.file_uploader(
+            "Choose a data file. Your data won't be stored as well!",
+            accept_multiple_files=False,
+            type=["csv", "json", "xls", "xlsx"],
+        )
         if uploaded_file:
             if uploaded_file.getvalue():
                 uploaded_file.seek(0)
-                st.session_state.DF_uploaded = read_file_from_streamlit(
-                    uploaded_file)
+                st.session_state.DF_uploaded = read_file_from_streamlit(uploaded_file)
                 st.session_state.is_file_empty = False
             else:
                 st.session_state.is_file_empty = True
 
     with right_column:
-        SELECTED_MODEL = st.selectbox(
-            'Which OpenAI model do you want to use?',
-            ('GPT-3.5-Turbo', 'GPT-4-Turbo'))
+        SELECTED_MODEL = st.selectbox("Which OpenAI model do you want to use?", ("GPT-3.5-Turbo", "GPT-4-Turbo"))
 
         MODE = st.selectbox(
-            'Select proper data analysis mode',
-            ('Data Visualization', 'Predictive Classification', 'Clustering Model', 'Regression Model'))
+            "Select proper data analysis mode",
+            ("Data Visualization", "Predictive Classification", "Clustering Model", "Regression Model"),
+        )
 
-        st.write(f'Model selected: :green[{SELECTED_MODEL}]')
-        st.write(f'Data analysis mode: :green[{MODE}]')
+        st.write(f"Model selected: :green[{SELECTED_MODEL}]")
+        st.write(f"Data analysis mode: :green[{MODE}]")
 
     # Proceed Button
-    is_proceed_enabled = uploaded_file is not None and API_KEY != "" or uploaded_file is not None and MODE == "Data Visualization"
+    is_proceed_enabled = (
+        uploaded_file is not None and API_KEY != "" or uploaded_file is not None and MODE == "Data Visualization"
+    )
 
     # Initialize the 'button_clicked' state
-    if 'button_clicked' not in st.session_state:
+    if "button_clicked" not in st.session_state:
         st.session_state.button_clicked = False
-    if st.button('Start Analysis', disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"):
+    if st.button(
+        "Start Analysis", disabled=(not is_proceed_enabled) or st.session_state.button_clicked, type="primary"
+    ):
         st.session_state.button_clicked = True
     if "is_file_empty" in st.session_state and st.session_state.is_file_empty:
-        st.caption('Your data file is empty!')
+        st.caption("Your data file is empty!")
 
     # Start Analysis
     if st.session_state.button_clicked:
-        GPT_MODEL = 4 if SELECTED_MODEL == 'GPT-4-Turbo' else 'gpt-3.5-turbo-1106'
+        GPT_MODEL = 4 if SELECTED_MODEL == "GPT-4-Turbo" else "gpt-3.5-turbo-1106"
         with st.container():
             if "DF_uploaded" not in st.session_state:
                 st.error("File is empty!")
             else:
-                if MODE == 'Predictive Classification':
-                    prediction_model_pipeline(
-                        st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
-                elif MODE == 'Clustering Model':
-                    cluster_model_pipeline(
-                        st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
-                elif MODE == 'Regression Model':
-                    regression_model_pipeline(
-                        st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
-                elif MODE == 'Data Visualization':
-                    data_visualization(
-                        st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
-                    # preprocessing(st.session_state.DF_uploaded)
+                preprocess_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                # if MODE == "Predictive Classification":
+                #     prediction_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                # elif MODE == "Clustering Model":
+                #     cluster_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                # elif MODE == "Regression Model":
+                #     regression_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                # elif MODE == "Data Visualization":
+                #     data_visualization(st.session_state.DF_uploaded, API_KEY, GPT_MODEL)
+                #     # preprocessing(st.session_state.DF_uploaded)

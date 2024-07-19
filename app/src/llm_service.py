@@ -10,7 +10,7 @@ from langchain.schema import HumanMessage
 from langchain_community.chat_models import ChatOpenAI
 
 config_path = os.path.join(os.path.dirname(__file__), "config", "config.yaml")
-with open(config_path, "r") as file:
+with open(config_path, "rb") as file:
     config = yaml.safe_load(file)
 model4_name = config["model4_name"]
 model3_name = config["model3_name"]
@@ -385,4 +385,70 @@ def select_pipeline(shape_info, description_info, head_info, question, model_typ
         return json.loads(json_str)["pipeline"]
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
+def decide_target_attribute_classi(attributes, types_info, head_info, model_type = 4, user_api_key = None, question_user=None):
+    """
+    Determines the target attribute for modeling based on dataset attributes and characteristics.
+
+    Parameters:
+    - attributes: A list of dataset attributes.
+    - types_info: Information about the data types of the attributes.
+    - head_info: A snapshot of the dataset's first few rows.
+    - model_type (int, optional): The model type to use for decision making (default 4).
+    - user_api_key (str, optional): The user's API key for OpenAI.
+    - question_user: The question that the user wants to ask the model.
+
+    Returns:
+    - The name of the recommended target attribute. Please refer to prompt templates in config.py for details.
+
+    Raises:
+    - Exception: If unable to access the OpenAI API or another error occurs.
+    """
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+        #print('Ket qua dau vao: ', attributes, types_info, head_info, question_user)
+        template = config["decide_target_attribute_template_classification"]
+
+        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info","question_user"], template=template)
+        print('Ket qua prompt template la', prompt_template)
+
+        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info,question_user=question_user)
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if '```json' in llm_answer.content:
+            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+            if match: json_str = match.group(1)
+        else: json_str = llm_answer.content
+        #print('Ket qua phan tich', json.loads(json_str)["target"])
+        return json.loads(json_str)["target"]
+    except Exception as e:
+        st.error("🚨 Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
+def convert_question_to_DF(attributes, types_info, head_info, model_type = 4, user_api_key = None, question_user=None):
+    import pandas as pd
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+        #print('Ket qua dau vao: ', attributes, types_info, head_info, question_user)
+        template = config["export_JSON_for_question_template_classification"]
+
+        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info","question_user"], template=template)
+        print('Ket qua prompt template la', prompt_template)
+
+        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info,question_user=question_user)
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if '```json' in llm_answer.content:
+            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+            if match: json_str = match.group(1)
+        else: json_str = llm_answer.content
+        print('Data point của tôi là: ', json_str)
+        return json.loads(json_str)
+    except Exception as e:
+        st.error("🚨 Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()

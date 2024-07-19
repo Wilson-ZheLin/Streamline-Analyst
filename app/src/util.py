@@ -102,7 +102,7 @@ def contain_null_attributes_info(df):
     if not attributes: return [], -1, -1
 
     description_info = df[attributes].describe(percentiles=[.5])
-    description_info = description_info.loc[['count', 'mean', '50%', 'std']].round(2).to_csv()
+    #description_info = description_info.loc[['count', 'mean', '50%', 'std']].round(2).to_csv()
 
     dtypes_df = df[attributes].dtypes
     types_info = "\n".join([f"{index}:{dtype}" for index, dtype in dtypes_df.items()])

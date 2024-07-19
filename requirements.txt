@@ -17,3 +17,5 @@ streamlit_lottie==0.0.5
 wordcloud==1.9.3
 xgboost==2.0.3
 statsmodels==0.14.0
+langchain-openai==0.1.16
+dotenv-python==0.0.1

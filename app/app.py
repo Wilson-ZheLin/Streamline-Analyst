@@ -73,12 +73,15 @@ with st.container():
                 st.write(f"Model selected: :green[{SELECTED_MODEL}]")
                 st.write(f"Data analysis mode: :green[{MODE}]")
 
-                # Start selected pipeline
-                if MODE == "Predictive Classification":
-                    prediction_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
-                elif MODE == "Clustering Model":
-                    cluster_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
-                elif MODE == "Regression Model":
-                    regression_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
-                elif MODE == "Data Visualization":
-                    data_visualization(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
+                # Start preprocessing pipeline
+                preprocess_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
+
+                # # Start selected pipeline
+                # if MODE == "Predictive Classification":
+                #     prediction_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
+                # elif MODE == "Clustering Model":
+                #     cluster_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
+                # elif MODE == "Regression Model":
+                #     regression_model_pipeline(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)
+                # elif MODE == "Data Visualization":
+                #     data_visualization(st.session_state.DF_uploaded, API_KEY, GPT_MODEL, QUESTION)

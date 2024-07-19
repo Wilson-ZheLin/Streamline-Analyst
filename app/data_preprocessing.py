@@ -40,35 +40,48 @@ from src.util import (
 
 def preprocess_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
     store_origin_data(DF)
-    origin_data = replace_placeholders_with_nan(get_origin_data())
+    data = replace_placeholders_with_nan(get_origin_data())
 
     st.header("Data Preprocessing")
     st.divider()  # start a new section
 
     # step 1: Load data -> overview
     st.subheader("Data Overview")
-    st.dataframe(origin_data.head(10), width=1200)
+    st.dataframe(data.head(10), width=1200)
     st.subheader("Data Info")
-    st.dataframe(get_info(origin_data), width=600)
+    st.dataframe(get_info(data), width=600)
 
-    # step 2: Data encoding -> check data type and convert to numeric
+    # step 2: Handle missing values -> check missing values and decide how to handle them
+    st.subheader("Handle Missing Values")
+    st.caption("*For considerations of processing time, **high null columns** have been removed.")  # fmt: skip
+    if contains_missing_value(data):
+        with st.status("Processing **missing values** in the data...", expanded=True) as status:
+            st.write("Filtering out high-frequency missing rows and columns...")
+            filled_df = remove_high_null(data)
+            st.write("Large language model analysis...")
+            attributes, types_info, description_info = contain_null_attributes_info(filled_df)
+            fill_result_dict = decide_fill_null(attributes, types_info, description_info, GPT_MODEL, API_KEY)
+            st.write("Imputing missing values...")
+            mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)  # fmt: skip
+            filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list)  # fmt: skip
+            status.update(label="Missing value processing completed!", state="complete", expanded=False)
+            data = filled_df
+        st.download_button(
+            label="Download Data with Missing Values Imputed",
+            data=data.to_csv(index=False).encode("utf-8"),
+            file_name="imputed_missing_values.csv",
+            mime="text/csv",
+        )
+        st.dataframe(filled_df.head(10), width=1200)
+    else:
+        st.info("No missing values found!")
+
+    # step 3: Data encoding -> check data type and convert to numeric
     st.subheader("Data Encoding")
-    st.caption(
-        "*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped."
-    )
+    st.caption("*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped.")  # fmt: skip
     st.session_state.all_numeric = check_all_columns_numeric(st.session_state.data_origin)
     if not st.session_state.all_numeric:
         st.warning("Non-numeric columns found!")
-        st.write(non_numeric_columns_and_head(origin_data))
+        st.write(non_numeric_columns_and_head(data)[0])
         st.info("AI is handling non-numeric columns!")
-        data = convert_to_numeric(origin_data)
-
-    # step 3: Check missing values
-    st.subheader("Check Missing Values")
-    if contains_missing_value(origin_data):
-        st.warning("Missing values found!")
-        st.write(contain_null_attributes_info(origin_data)[0])
-        st.info("AI is handling missing values!")
-        data = decide_fill_null(origin_data, API_KEY, GPT_MODEL)
-    else:
-        st.success("No missing values found!")
+        data = convert_to_numeric(data)

@@ -5,7 +5,7 @@ from src.plot import list_all, distribution_histogram, distribution_boxplot, cou
 from src.visualization_ai import create_param, predict_visualization_chart, predict_visualization_related_attrs, predict_visualization_related_question, single_attr_chart_visualization_template, multiple_attr_chart_visualization_template
 import pandas as pd
 mock_question = '''
-Thống kê diện tích và chiều dài 
+Thống kê histogram số phòng
 '''
 
 
@@ -52,7 +52,7 @@ def preprocessing(df):
         df.loc[:, column] = df[column].str.replace(
             ',', '', regex=False).astype(float)
 
-        df[column] = pd.to_numeric(df[column], errors='coerce')
+        df.loc[:, column] = pd.to_numeric(df[column], errors='coerce')
 
     # print(df)
 

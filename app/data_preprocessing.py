@@ -38,7 +38,7 @@ from src.util import (
 )
 
 
-def preprocess_pipeline(DF, API_KEY, GPT_MODEL):
+def preprocess_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
     store_origin_data(DF)
     origin_data = replace_placeholders_with_nan(get_origin_data())
 
@@ -50,10 +50,12 @@ def preprocess_pipeline(DF, API_KEY, GPT_MODEL):
     st.dataframe(origin_data.head(10), width=1200)
     st.subheader("Data Info")
     st.dataframe(get_info(origin_data), width=600)
-    
+
     # step 2: Data encoding -> check data type and convert to numeric
     st.subheader("Data Encoding")
-    st.caption("*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped.")
+    st.caption(
+        "*For considerations of processing time, **NLP features** like **TF-IDF** have not been included in the current pipeline, long text attributes may be dropped."
+    )
     st.session_state.all_numeric = check_all_columns_numeric(st.session_state.data_origin)
     if not st.session_state.all_numeric:
         st.warning("Non-numeric columns found!")

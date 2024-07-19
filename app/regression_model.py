@@ -1,4 +1,7 @@
 import streamlit as st
+import json
+from openai import OpenAI
+import pandas as pd
 from util import developer_info, developer_info_static
 from src.plot import correlation_matrix_plotly, plot_residuals, plot_predictions_vs_actual, plot_qq_plot
 from src.handle_null_value import contains_missing_value, remove_high_null, fill_null_values
@@ -36,10 +39,53 @@ def start_training_model():
 
 
 def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
+    # XỬ LÝ CÂU HỎI CỦA USER
+    client = OpenAI(
+        api_key=API_KEY,
+    )
+    PROMPT = f'Tôi có 1 tập dữ liệu với các thuộc tính như sau: {st.session_state.DF_uploaded.columns.tolist()}.\nTôi có 1 câu hỏi từ người dùng: "{QUESTION}".\nDựa vào các thuộc tính của tập dữ liệu và câu hỏi của người dùng, hãy giúp tôi xác định target variable, các attributes và các value để thực hiện inference.\nCấu trúc file JSON:\n'
+    PROMPT += '''
+    {
+        "target_variable": "target_variable",
+        "attributes": ["attribute1", "attribute2", ...],
+        "values":
+        {
+            "attribute1": value1,
+            "attribute2": value2,
+            ...
+        }
+    }
+    '''
+    messages = [
+            {"role": "system", "content": "Bạn là một chuyên gia phân tích dữ liệu."},
+            {"role": "user", "content": PROMPT},
+        ]
+    params = {
+            "model": "gpt-4o-mini",
+            "messages": messages,
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+        }
+    response = client.chat.completions.create(**params)
+    analysis_params = response.choices[0].message.content
+    analysis_params = json.loads(analysis_params)
+
+    columns = analysis_params["attributes"]
+    # columns.append(analysis_params["target_variable"])
+    NEW_DF = DF[columns]
+
     st.divider()
+    st.subheader('Phân tích câu hỏi bằng GPT-4o-mini')
+    analysis_str = f'''
+    Biến mục tiêu: {analysis_params['target_variable']}\n
+    Các thuộc tính dùng để phân tích: {analysis_params['attributes']}\n
+    Các giá trị của thuộc tính: {analysis_params['values']}
+    '''
+    st.success(analysis_str)
+
     st.subheader("Data Overview")
     if "data_origin" not in st.session_state:
-        st.session_state.data_origin = DF
+        st.session_state.data_origin = NEW_DF
     st.dataframe(st.session_state.data_origin.describe(), width=1200)
     attributes = st.session_state.data_origin.columns.tolist()
 
@@ -50,12 +96,9 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
     if not st.session_state.target_selected:
 
         with st.spinner("AI is analyzing the data..."):
-            attributes_for_target, types_info_for_target, head_info_for_target = attribute_info(
-                st.session_state.data_origin
-            )
-            st.session_state.target_Y = decide_target_attribute(
-                attributes_for_target, types_info_for_target, head_info_for_target, GPT_MODEL, API_KEY
-            )
+            # attributes_for_target, types_info_for_target, head_info_for_target = attribute_info(st.session_state.data_origin)
+            # st.session_state.target_Y = decide_target_attribute(attributes_for_target, types_info_for_target, head_info_for_target, GPT_MODEL, API_KEY)
+            st.session_state.target_Y = analysis_params["target_variable"]
 
         if st.session_state.target_Y != -1:
             selected_Y = st.session_state.target_Y
@@ -91,22 +134,19 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
         if "filled_df" not in st.session_state:
             if st.session_state.contain_null:
                 with st.status("Processing **missing values** in the data...", expanded=True) as status:
-                    st.write("Filtering out high-frequency missing rows and columns...")
-                    filled_df = remove_high_null(DF)
-                    filled_df = remove_rows_with_empty_target(filled_df, st.session_state.selected_Y)
-                    st.write("Large language model analysis...")
-                    attributes, types_info, description_info = contain_null_attributes_info(filled_df)
-                    fill_result_dict = decide_fill_null(attributes, types_info, description_info, GPT_MODEL, API_KEY)
-                    st.write("Imputing missing values...")
-                    mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(
-                        fill_result_dict
-                    )
-                    filled_df = fill_null_values(
-                        filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list
-                    )
+                    # st.write("Filtering out high-frequency missing rows and columns...")
+                    # filled_df = remove_high_null(NEW_DF)
+                    # filled_df = remove_rows_with_empty_target(filled_df, st.session_state.selected_Y)
+                    # st.write("Large language model analysis...")
+                    # attributes, types_info, description_info = contain_null_attributes_info(filled_df)
+                    # fill_result_dict = decide_fill_null(attributes, types_info, description_info, GPT_MODEL, API_KEY)
+                    # st.write("Imputing missing values...")
+                    # mean_list, median_list, mode_list, new_category_list, interpolation_list = separate_fill_null_list(fill_result_dict)
+                    # filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_category_list, interpolation_list)
                     # Store the imputed DataFrame in session_state
+                    filled_df = NEW_DF.dropna()
                     st.session_state.filled_df = filled_df
-                    DF = filled_df
+                    NEW_DF = filled_df
                     status.update(label="Missing value processing completed!", state="complete", expanded=False)
                 st.download_button(
                     label="Download Data with Missing Values Imputed",
@@ -115,7 +155,7 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                     mime="text/csv",
                 )
             else:
-                st.session_state.filled_df = DF
+                st.session_state.filled_df = NEW_DF
                 st.success("No missing values detected. Processing skipped.")
         else:
             st.success("Missing value processing completed!")
@@ -140,19 +180,59 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                 with st.status(
                     "Encoding non-numeric data using **numeric mapping** and **one-hot**...", expanded=True
                 ) as status:
-                    non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(DF)
-                    st.write("Large language model analysis...")
-                    encode_result_dict = decide_encode_type(
-                        non_numeric_attributes, non_numeric_head, GPT_MODEL, API_KEY
-                    )
+                    non_numeric_attributes, non_numeric_head = non_numeric_columns_and_head(NEW_DF)
+                    # NẾU CÓ CỘT SỐ TẦNG VÀ SỐ PHÒNG NGỦ, XỬ LÍ CÁC GIÁ TRỊ 'NHIỀU HƠN 10'
+                    for non_numeric_attr in non_numeric_attributes:
+                        if non_numeric_attr == 'Diện tích':
+                            NEW_DF['Diện tích'] = NEW_DF['Diện tích'].apply(lambda x: x.replace(' m²', '') if type(x) == str else x)
+                        if non_numeric_attr == 'Số tầng':
+                            NEW_DF = NEW_DF[NEW_DF['Số tầng'] != 'Nhiều hơn 10']
+                        if non_numeric_attr == 'Số phòng ngủ':
+                            NEW_DF = NEW_DF[NEW_DF['Số phòng ngủ'] != 'nhiều hơn 10 phòng']
+                            NEW_DF['Số phòng ngủ'] = NEW_DF['Số phòng ngủ'].apply(lambda x: x.replace(' phòng', '') if type(x) == str else x)
+                        if non_numeric_attr == 'Giá/m2':
+                            def process_price(price):
+                                if type(price) != str:
+                                    return price
+                                new_price = price.split(' ')
+                                value = new_price[0]
+                                if '.' in value:
+                                    value = value.replace('.', '')
+                                if ',' in value:
+                                    value = value.replace(',', '.')
+                                value = float(value)
+                                if len(new_price) == 1:
+                                    return value
+                                else:
+                                    currency = new_price[1]
+                                if currency == 'triệu/m²':
+                                    return value
+                                elif currency == 'tỷ/m²':
+                                    return value * 1000
+                                elif currency == 'đ/m²':
+                                    return value * 0.000001
+                            NEW_DF['Giá/m2'] = NEW_DF['Giá/m2'].apply(lambda x: process_price(x) if type(x)==str else x)
+                            NEW_DF['Giá/m2'] = NEW_DF['Giá/m2'].fillna(NEW_DF['Giá/m2'].mean())
+                    # st.write("Large language model analysis...")
+                    # encode_result_dict = decide_encode_type(
+                    #     non_numeric_attributes, non_numeric_head, GPT_MODEL, API_KEY
+                    # )
                     st.write("Encoding the data...")
-                    convert_int_cols, one_hot_cols, drop_cols = separate_decode_list(
-                        encode_result_dict, st.session_state.selected_Y
-                    )
-                    encoded_df, mappings = convert_to_numeric(DF, convert_int_cols, one_hot_cols, drop_cols)
+                    # convert_int_cols, one_hot_cols, drop_cols = separate_decode_list(
+                    #     encode_result_dict, st.session_state.selected_Y
+                    # )
+                    # encoded_df, mappings = convert_to_numeric(NEW_DF, convert_int_cols, one_hot_cols, drop_cols)
                     # Store the imputed DataFrame in session_state
-                    st.session_state.encoded_df = encoded_df
-                    DF = encoded_df
+                    print('NEW_DF lần 1:')
+                    print(NEW_DF)
+                    if 'Diện tích' in NEW_DF.columns.tolist():
+                        NEW_DF['Diện tích'] = NEW_DF['Diện tích'].astype(float)
+                        NEW_DF['Diện tích'] = NEW_DF['Diện tích'].fillna(NEW_DF['Diện tích'].mean())
+                    if 'Số tầng' in NEW_DF.columns.tolist():
+                        NEW_DF['Số tầng'] = NEW_DF['Số tầng'].astype(int)
+                    if 'Số phòng ngủ' in NEW_DF.columns.tolist():
+                        NEW_DF['Số phòng ngủ'] = NEW_DF['Số phòng ngủ'].astype(int)
+                    st.session_state.encoded_df = NEW_DF
                     status.update(label="Data encoding completed!", state="complete", expanded=False)
                 st.download_button(
                     label="Download Encoded Data",
@@ -161,7 +241,7 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                     mime="text/csv",
                 )
             else:
-                st.session_state.encoded_df = DF
+                st.session_state.encoded_df = NEW_DF
                 st.success("All columns are numeric. Processing skipped.")
         else:
             st.success("Data encoded completed using numeric mapping and one-hot!")
@@ -172,34 +252,36 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                     file_name="encoded_data.csv",
                     mime="text/csv",
                 )
-
+        print('NEW_DF lần 2:\n', NEW_DF) # 1 lần
         # Correlation Heatmap
         if "df_cleaned1" not in st.session_state:
-            st.session_state.df_cleaned1 = DF
+            st.session_state.df_cleaned1 = NEW_DF
         st.subheader("Correlation Between Attributes")
         st.plotly_chart(correlation_matrix_plotly(st.session_state.df_cleaned1))
 
         # Remove duplicate entities
         st.subheader("Remove Duplicate Entities")
         if "df_cleaned2" not in st.session_state:
-            st.session_state.df_cleaned2 = remove_duplicates(st.session_state.df_cleaned1)
+            # st.session_state.df_cleaned2 = remove_duplicates(st.session_state.df_cleaned1)
+            st.session_state.df_cleaned2 = st.session_state.df_cleaned1
             # DF = remove_duplicates(DF)
         st.info("Duplicate rows removed.")
 
         # Data Transformation
         st.subheader("Data Transformation")
         if "data_transformed" not in st.session_state:
-            st.session_state.data_transformed = transform_data_for_clustering(st.session_state.df_cleaned2)
+            # st.session_state.data_transformed = transform_data_for_clustering(st.session_state.df_cleaned2)
+            st.session_state.data_transformed = st.session_state.df_cleaned2
+        print('data_transformed:\n', st.session_state.data_transformed)
         st.success("Data transformed by standardization and box-cox if applicable.")
 
         # PCA
         st.subheader("Principal Component Analysis")
         st.write("Deciding whether to perform PCA...")
         if "df_pca" not in st.session_state:
-            _, n_components = decide_pca(st.session_state.df_cleaned2)
-            st.session_state.df_pca = perform_PCA_for_regression(
-                st.session_state.data_transformed, n_components, st.session_state.selected_Y
-            )
+            # _, n_components = decide_pca(st.session_state.df_cleaned2)
+            # st.session_state.df_pca = perform_PCA_for_regression(st.session_state.data_transformed, n_components, st.session_state.selected_Y)
+            st.session_state.df_pca = st.session_state.data_transformed
         st.success("Completed!")
 
         if "start_training" not in st.session_state:
@@ -277,6 +359,7 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                         st.session_state.X_test,
                         st.session_state.Y_train,
                         st.session_state.Y_test,
+                        analysis_params
                     )
                     st.session_state["all_set"] = True
 
@@ -314,8 +397,7 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
             else:
                 developer_info_static()
 
-
-def display_results(X_train, X_test, Y_train, Y_test):
+def display_results(X_train, X_test, Y_train, Y_test, analysis_params):
     st.success("Models selected based on your data!")
 
     # Data set metrics
@@ -391,3 +473,11 @@ def display_results(X_train, X_test, Y_train, Y_test):
         st.pyplot(plot_residuals(st.session_state.y_pred3, Y_test))
         st.write("Mean Absolute Error: ", f":green[**{calculate_mae(st.session_state.y_pred3, Y_test)}**]")
         st.pyplot(plot_qq_plot(st.session_state.y_pred3, Y_test))
+
+    # PREDICTION
+    st.divider()
+    st.header("TRẢ LỜI CÂU HỎI CỦA USER")
+    values = pd.DataFrame([analysis_params['values']])
+    print('values:', values)
+    predicted = st.session_state.model1.predict(values)
+    st.success(f"Căn nhà được cung cấp trong câu hỏi có giá trị là :green[**{predicted[0]}**] triệu đồng.")

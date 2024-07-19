@@ -3,7 +3,7 @@ import pandas as pd
 
 from src.handle_null_value import fill_null_values, remove_high_null
 from src.llm_service import decide_encode_type, decide_fill_null, select_pipeline
-from src.preprocess import encode_data
+from src.preprocess import encode_data, remove_duplicates
 from src.util import contain_null_attributes_info, separate_fill_null_list
 from src.utils.dataframe_util import get_info
 
@@ -38,5 +38,11 @@ filled_df = fill_null_values(filled_df, mean_list, median_list, mode_list, new_c
 print(filled_df.head(10))
 print(filled_df.info())
 
-filled_df.to_csv("/Users/ninh.nguyen/ninhnq_1911/DA_hcmus/house-price-analyzer/local/data/preprocess.csv", index=False)
+filled_df.to_csv("/Users/ninh.nguyen/ninhnq_1911/DA_hcmus/house-price-analyzer/local/data/pre-processed_data.csv", index=False)  # fmt: skip
+data = filled_df
+
+data.info()
+data = remove_duplicates(data)
+print(data.head(10))
+data.info()
 

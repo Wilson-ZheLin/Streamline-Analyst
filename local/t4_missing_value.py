@@ -29,3 +29,4 @@ filled_df = remove_high_null(data)
 attributes, types_info, description_info = contain_null_attributes_info(filled_df)
 fill_result_dict = decide_fill_null(attributes, types_info, description_info, 4, gpt_key)
 print(fill_result_dict)
+

@@ -10,3 +10,4 @@ test.py
 
 .env
 .vscode
+.conda

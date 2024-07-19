@@ -12,7 +12,7 @@ print(data.head(20))
 print(data.info())
 
 
-gpt_key = os.environ.get("OPENAI_KEY")
+gpt_key = os.environ.get("API_KEY")
 encode_map = decide_encode_type(
     attributes=data.columns, data_frame_head=data.head(20), model_type=3, user_api_key=gpt_key
 )

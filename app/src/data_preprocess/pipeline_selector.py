@@ -13,7 +13,7 @@ PIPELINE_MAP = {
 DEFAULT_PIPELINE = "Data Visualization"
 
 
-def get_selected_pipeline(data: pd.DataFrame, question: str, model_type=4, api_key=os.environ["OPENAI_KEY"]) -> str:
+def get_selected_pipeline(data: pd.DataFrame, question: str, model_type=4, api_key="") -> str:
     return PIPELINE_MAP.get(
         select_pipeline(
             shape_info=data.shape,

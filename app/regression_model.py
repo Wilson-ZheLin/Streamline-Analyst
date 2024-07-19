@@ -71,7 +71,8 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
     analysis_params = json.loads(analysis_params)
 
     columns = analysis_params["attributes"]
-    # columns.append(analysis_params["target_variable"])
+    if analysis_params["target_variable"] not in columns:
+        columns.append(analysis_params["target_variable"])
     NEW_DF = DF[columns]
 
     st.divider()
@@ -223,8 +224,6 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                     # )
                     # encoded_df, mappings = convert_to_numeric(NEW_DF, convert_int_cols, one_hot_cols, drop_cols)
                     # Store the imputed DataFrame in session_state
-                    print('NEW_DF lần 1:')
-                    print(NEW_DF)
                     if 'Diện tích' in NEW_DF.columns.tolist():
                         NEW_DF['Diện tích'] = NEW_DF['Diện tích'].astype(float)
                         NEW_DF['Diện tích'] = NEW_DF['Diện tích'].fillna(NEW_DF['Diện tích'].mean())
@@ -252,7 +251,6 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
                     file_name="encoded_data.csv",
                     mime="text/csv",
                 )
-        print('NEW_DF lần 2:\n', NEW_DF) # 1 lần
         # Correlation Heatmap
         if "df_cleaned1" not in st.session_state:
             st.session_state.df_cleaned1 = NEW_DF
@@ -272,7 +270,6 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
         if "data_transformed" not in st.session_state:
             # st.session_state.data_transformed = transform_data_for_clustering(st.session_state.df_cleaned2)
             st.session_state.data_transformed = st.session_state.df_cleaned2
-        print('data_transformed:\n', st.session_state.data_transformed)
         st.success("Data transformed by standardization and box-cox if applicable.")
 
         # PCA

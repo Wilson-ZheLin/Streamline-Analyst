@@ -183,12 +183,12 @@ def get_model_name(model_no):
         return "Naive Bayes"
     elif model_no == 4:
         return "Random Forest"
-    elif model_no == 5:
-        return "ADA Boost"
-    elif model_no == 6:
-        return "XGBoost"
-    elif model_no == 7:
-        return "Grandient Boost"
+    # elif model_no == 5:
+    #     return "ADA Boost"
+    # elif model_no == 6:
+    #     return "XGBoost"
+    # elif model_no == 7:
+    #     return "Grandient Boost"
     
 def get_cluster_method_name(method):
     """

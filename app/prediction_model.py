@@ -64,13 +64,20 @@ def get_answer_bot(API_KEY, user_question):
     question = f'''
     {user_question}
     Tôi có 1 danh sách kết quả sau khi train 1 tập dữ liệu file csv như trên. 
-    Hãy dựa vào f1 score và accuracy, chọn ra 1 model TỐT NHẤT bằng cách trả lời bằng số 1 hoặc 2 hoặc 3.
-    Chỉ được in ra số 1 hoặc 2 hoặc 3 thôi.
+    Hãy dựa vào f1 score và accuracy, chọn ra 1 model TỐT NHẤT bằng cách trả lời bằng số 1 hoặc 2.
+    Chỉ được in ra số 1 hoặc 2 thôi.
     '''
 
     final_report = llm_chain.invoke(question)
     return final_report
 
+def inference_model(X_question, X_train, Y_train):
+    # Model Inference
+    st.session_state.model1 = train_selected_model(X_train, Y_train, st.session_state.model_list[1])
+    predicted_label = st.session_state.model1.predict(X_question)
+    return predicted_label
+
+X_question_full = pd.DataFrame()
 def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
     DF = DF.drop("Địa chỉ", axis=1)
     DF = DF.drop("Ngày", axis=1)
@@ -90,7 +97,6 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
             "Location": "inland"
     }
     new_df = pd.DataFrame([X_test_sample])
-    print(new_df)
 
     if 'data_origin' not in st.session_state:
         st.session_state.data_origin = DF
@@ -98,13 +104,6 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
     st.dataframe(st.session_state.data_origin.describe(), width=1200)
     attributes = st.session_state.data_origin.columns.tolist()
     result_dataoverview = st.session_state.data_origin.describe()
-
-    #preprocess_data_gianha(st.session_state.data_origin,'')
-    attributes_for_target, types_info_for_target, head_info_for_target = attribute_info(st.session_state.data_origin)
-    st.session_state.json_file = convert_question_to_DF(attributes_for_target, types_info_for_target, head_info_for_target, GPT_MODEL, API_KEY, THE_PROMPT)
-    #print(st.session_state.json_file)
-    data = pd.json_normalize(st.session_state.json_file)
-    data.to_csv('data.csv')
     
     from langchain_core.prompts import PromptTemplate
     from langchain_openai import OpenAI
@@ -231,7 +230,18 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                     # Store the imputed DataFrame in session_state
                     st.session_state.encoded_df = encoded_df
                     DF = encoded_df
-                    print("DF sau khi encode: ", DF)
+                    #print("DF sau khi encode: ", DF)
+
+                    #preprocess_data_gianha(st.session_state.data_origin,'')
+                    attributes_for_target, types_info_for_target, head_info_for_target = attribute_info(st.session_state.data_origin)
+                    st.session_state.json_file = convert_question_to_DF(attributes_for_target, types_info_for_target, head_info_for_target, GPT_MODEL, API_KEY, THE_PROMPT)
+                    #print(st.session_state.json_file)
+                    data = pd.json_normalize(st.session_state.json_file)
+                    data.to_csv('data.csv')
+                    new_encoded_df, new_mappings = convert_to_numeric(data, convert_int_cols, one_hot_cols, drop_cols)
+                    print("Thông tin new_encoded_df: ", new_encoded_df)
+                    data = new_encoded_df
+
                     status.update(label='Data encoding completed!', state="complete", expanded=False)
                 st.download_button(
                     label="Download Encoded Data",
@@ -253,7 +263,8 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
         # Correlation Heatmap
         if 'df_cleaned1' not in st.session_state:
             st.session_state.df_cleaned1 = DF
-        st.subheader('Correlation Between Attributes')
+            st.session_state.df_cleaned1_question = new_encoded_df
+        #st.subheader('Correlation Between Attributes')
         #st.plotly_chart(correlation_matrix_plotly(st.session_state.df_cleaned1))
 
         # Remove duplicate entities
@@ -272,8 +283,10 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                 st.session_state.to_perform_pca = to_perform_pca
             if st.session_state.to_perform_pca:
                 st.session_state.df_pca = perform_pca(st.session_state.df_cleaned2, n_components, st.session_state.selected_Y)
+                st.session_state.df_pca_question = to_perform_pca(st.session_state.df_cleaned1_question, n_components, st.session_state.selected_Y)
             else:
                 st.session_state.df_pca = st.session_state.df_cleaned2
+                #st.session_state.df_pca_question = st.session_state.df_cleaned1_question
         st.success("Completed!")
 
         # Splitting and Balancing
@@ -310,6 +323,10 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
             with st.container():
                 st.header("Modeling")
                 X, Y = select_Y(st.session_state.df_pca, st.session_state.selected_Y)
+                #X_question, Y_question = select_Y(st.session_state.df_pca_question, st.session_state.selected_Y)
+                X_question, Y_question = select_Y(st.session_state.df_cleaned1_question, st.session_state.selected_Y)
+                print('X la ', X)
+                print('X_question la', X_question)
                 # Balancing
                 if st.session_state.balance_data and "balance_method" not in st.session_state:
                     print("Balance ====================")
@@ -393,6 +410,12 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
 
                     st.session_state["all_set"] = True
 
+                 # Model Inference
+                ketqua = inference_model(X_question,st.session_state.X_train, st.session_state.Y_train)
+                print(ketqua)
+                
+                
+                
                 # Download models
                 if st.session_state["all_set"]:
                     download_col1, download_col2, download_col3 = st.columns(3)
@@ -400,11 +423,8 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                         st.download_button(label="Download Model", data=st.session_state.downloadable_model1, file_name=f"{st.session_state.model1_name}.joblib", mime="application/octet-stream")
                     with download_col2:
                         st.download_button(label="Download Model", data=st.session_state.downloadable_model2, file_name=f"{st.session_state.model2_name}.joblib", mime="application/octet-stream")
-                    with download_col3:
-                        st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
-
-        # Model Inference
-        
+                    #with download_col3:
+                        #st.download_button(label="Download Model", data=st.session_state.downloadable_model3, file_name=f"{st.session_state.model3_name}.joblib", mime="application/octet-stream")
 
         # Footer
         st.divider()
@@ -414,7 +434,6 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                 developer_info()
             else:
                 developer_info_static()
-
 
 def display_results(X_train, X_test, Y_train, Y_test):
     results = []
@@ -487,32 +506,33 @@ def display_results(X_train, X_test, Y_train, Y_test):
             st.pyplot(roc(st.session_state.model2_name, st.session_state.fpr2, st.session_state.tpr2))
             st.write(f"The AUC of the {st.session_state.model2_name}: ", f'\n:green[**{auc(st.session_state.fpr2, st.session_state.tpr2)}**]')
         
-    with model_col3:
-        if "model3_name" not in st.session_state:
-            st.session_state.model3_name = get_model_name(st.session_state.model_list[2])
-        st.subheader(st.session_state.model3_name)
-        with st.spinner("Model training in progress..."):
-            if 'model3' not in st.session_state:
-                st.session_state.model3 = train_selected_model(X_train, Y_train, st.session_state.model_list[2])
-                st.session_state.downloadable_model3 = save_model(st.session_state.model3)
-        # Model metrics
-        st.write(f"The accuracy of the {st.session_state.model3_name}: ", f'\n:green[**{st.session_state.model3.score(X_test, Y_test)}**]')
-        st.pyplot(confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test))
-        st.write("F1 Score: ", f':green[**{calculate_f1_score(st.session_state.model3, X_test, Y_test, st.session_state.is_binary)}**]')
-        result3 = {
-            "model_name":st.session_state.model3_name,
-            "confusion_matrix":get_confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test),
-            "accuracy":st.session_state.model3.score(X_test, Y_test),
-            "f1_score":calculate_f1_score(st.session_state.model3, X_test, Y_test, st.session_state.is_binary)
-        }
+    # with model_col3:
+    #     if "model3_name" not in st.session_state:
+    #         st.session_state.model3_name = get_model_name(st.session_state.model_list[2])
+    #     st.subheader(st.session_state.model3_name)
+    #     with st.spinner("Model training in progress..."):
+    #         if 'model3' not in st.session_state:
+    #             print(train_selected_model(X_train, Y_train, st.session_state.model_list[2]))
+    #             st.session_state.model3 = train_selected_model(X_train, Y_train, st.session_state.model_list[2])
+    #             st.session_state.downloadable_model3 = save_model(st.session_state.model3)
+    #     # Model metrics
+    #     st.write(f"The accuracy of the {st.session_state.model3_name}: ", f'\n:green[**{st.session_state.model3.score(X_test, Y_test)}**]')
+    #     st.pyplot(confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test))
+    #     st.write("F1 Score: ", f':green[**{calculate_f1_score(st.session_state.model3, X_test, Y_test, st.session_state.is_binary)}**]')
+    #     result3 = {
+    #         "model_name":st.session_state.model3_name,
+    #         "confusion_matrix":get_confusion_metrix(st.session_state.model3_name, st.session_state.model3, X_test, Y_test),
+    #         "accuracy":st.session_state.model3.score(X_test, Y_test),
+    #         "f1_score":calculate_f1_score(st.session_state.model3, X_test, Y_test, st.session_state.is_binary)
+    #     }
 
-        if st.session_state.model_list[2] != 2 and st.session_state['is_binary']:
-            if 'fpr3' not in st.session_state:
-                fpr3, tpr3 = fpr_and_tpr(st.session_state.model3, X_test, Y_test)
-                st.session_state.fpr3 = fpr3
-                st.session_state.tpr3 = tpr3
-            st.pyplot(roc(st.session_state.model3_name, st.session_state.fpr3, st.session_state.tpr3))
-            st.write(f"The AUC of the {st.session_state.model3_name}: ", f'\n:green[**{auc(st.session_state.fpr3, st.session_state.tpr3)}**]')
+    #     if st.session_state.model_list[2] != 2 and st.session_state['is_binary']:
+    #         if 'fpr3' not in st.session_state:
+    #             fpr3, tpr3 = fpr_and_tpr(st.session_state.model3, X_test, Y_test)
+    #             st.session_state.fpr3 = fpr3
+    #             st.session_state.tpr3 = tpr3
+    #         st.pyplot(roc(st.session_state.model3_name, st.session_state.fpr3, st.session_state.tpr3))
+    #         st.write(f"The AUC of the {st.session_state.model3_name}: ", f'\n:green[**{auc(st.session_state.fpr3, st.session_state.tpr3)}**]')
     
     print("Uả sao không ra kết quả dị")
     #print(st.session_state.model1)
@@ -528,5 +548,5 @@ def display_results(X_train, X_test, Y_train, Y_test):
     
     results.append(result1)
     results.append(result2)
-    results.append(result3)
+    #results.append(result3)
     return results 

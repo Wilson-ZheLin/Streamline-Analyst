@@ -9,6 +9,7 @@ Thống kê histogram số phòng
 '''
 
 
+
 def preprocessing(df):
     # Drop Unname column
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
@@ -19,9 +20,12 @@ def preprocessing(df):
         "number": ["Số tầng", "Số phòng ngủ", "Diện tích", 'Dài', 'Rộng', 'Giá/m2']
     }
 
+    hash_map = {}
     for column in df.columns:
         if column in column_type['string']:
-            df.loc[:, column] = df[column].fillna("Không xác định")
+            df.loc[:,column] = df[column].fillna("Không xác định")
+            # df.loc[:,column], unique_values = pd.factorize(df[column])
+            # hash_map[column] = {index: value for index, value in enumerate(unique_values)}
         # if column in column_type['date']:
             # df.loc[:, column] = pd.to_datetime(df[column],format="%Y-%m-%d", errors='coerce')
 
@@ -50,9 +54,9 @@ def preprocessing(df):
 
     for column in column_type['number']:
         df.loc[:, column] = df[column].str.replace(
-            ',', '', regex=False).astype(float)
-
-        df.loc[:, column] = pd.to_numeric(df[column], errors='coerce')
+            ',', '', regex=False)
+        
+        df.loc[:,column] = pd.to_numeric(df[column], errors='coerce')
 
     # print(df)
 
@@ -61,7 +65,9 @@ def preprocessing(df):
     return df
 
 
+
 def display_chart(DF, plot_type, att, plot_area):
+    DF.to_excel('filename.xlsx', index=False) 
     with st.spinner(f'Đang vẽ biểu đồ {plot_type}'):
         if len(att) == 1:
             att = att[0]

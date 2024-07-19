@@ -28,7 +28,7 @@ with st.container():
         QUESTION = st.text_input(
             "Nhập câu hỏi phân tích của bạn",
             placeholder="...",
-            value="Hiển thị giá nhà trung bình của các quận ở Hà Nội",
+            value="Visualiza giá nhà theo quận dùng heatmap",
         )
         uploaded_file = st.file_uploader(
             "Choose a data file. Your data won't be stored as well!",

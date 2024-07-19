@@ -41,3 +41,11 @@ decide_balance_template: |
   {description_info}
   The number of each value of the target attribute is: {balance_info}
   Determine the balance strategy based on the data information provided. The RandomOverSampler is represented by 1, the SMOTE is represented by 2, the ADASYN is represented by 3, and do not balance is represented by 4. Only the data is returned in json format without any other explanation or content. Sample response: {{"method":2}}
+pipeline_selection_template: |
+  You are a data analyst. You have a preprocessed dataframe with shape {shape_info}. The description of the data frame is:
+  {description_info}
+  The head(10) of the data frame is:
+  {head_info}
+  You have to answer a question about the provided dataframe. The question is:
+  {question}
+  Determine the data analysis pipeline that most likely solves the problem based on the data information provided. The pipeline options are represented by 1: Data visualization pipeline, 2: Classification pipeline, 3: Regression pipeline, 4: Clustering pipeline. Only the data is returned in json format without any other explanation or content. Sample response: {{"pipeline":4}}

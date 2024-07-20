@@ -17,8 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
-#API_KEY = os.getenv("API_KEY")
-API_KEY = ""
+API_KEY = os.getenv("API_KEY")
 
 # MAIN SECTION
 with st.container():
@@ -64,7 +63,7 @@ with st.container():
 
     # Start Analysis
     if st.session_state.button_clicked:
-        GPT_MODEL = 4 if SELECTED_MODEL == "GPT-4-Turbo" else "gpt-3.5-turbo-1106"
+        GPT_MODEL = 4 if SELECTED_MODEL == "GPT-4-Turbo" else "GPT-4o-mini"
         with st.container():
             if "DF_uploaded" not in st.session_state:
                 st.error("File is empty!")

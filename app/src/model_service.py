@@ -22,6 +22,8 @@ def split_data(X, Y, test_size = 0.2, random_state = 42, perform_pca = False):
     :return: A tuple containing split and optionally transformed datasets: X_train, X_test, Y_train, Y_test.
     """
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=test_size, random_state=random_state)
+    print('LÚC NÀY Y_train là', Y_train)
+    print('LÚC NÀY Y_test là', Y_test)
 
     if not perform_pca:
         scaler = StandardScaler()

@@ -62,6 +62,16 @@ decide_target_attribute_template_classification: |
   Only the data is returned in json format without any other explanation or content. 
   Sample response: {{"target":"species"}}
   If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
+explain_for_question_template_classification: |
+  You are a data analyst. 
+  You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(20) of the data frame is:
+  {head_info}
+  Only return the answer in Vietnamese.
 export_JSON_for_question_template_classification: |
   You are a data analyst. 
   You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
@@ -72,7 +82,8 @@ export_JSON_for_question_template_classification: |
   The head(20) of the data frame is:
   {head_info}
   Determine JSON response based on the question and attributes of data for the prediction in classification.
-  If any attribute from the dataframe is missing in the question, just assign it with the value '' or 0.
+  If any attribute from the dataframe is missing in the question, just assign it with any random value from the value in the head(20) of the data frame is:
+  {head_info}
   Only the data is returned in json format without any other explanation or content. 
   Sample response: {{
     "Temperature": 17,

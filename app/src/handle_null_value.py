@@ -1,10 +1,12 @@
 import numpy as np
 
+
 def contains_missing_value(df):
     """
     Checks if the DataFrame contains any missing values.
     """
     return df.isnull().values.any()
+
 
 def fill_null_values(df, mean_list, median_list, mode_list, new_category_list, interpolation_list):
     """
@@ -28,11 +30,11 @@ def fill_null_values(df, mean_list, median_list, mode_list, new_category_list, i
     if mode_list:
         df = fill_with_mode(df, mode_list)
     if new_category_list:
-        # df = fill_with_NaN(df, new_category_list)
-        df = fill_with_interpolation(df, new_category_list)
+        df = fill_with_NaN(df, new_category_list)
     if interpolation_list:
         df = fill_with_interpolation(df, interpolation_list)
     return df
+
 
 def remove_high_null(df, threshold_row=0.5, threshold_col=0.7):
     """
@@ -61,17 +63,20 @@ def remove_high_null(df, threshold_row=0.5, threshold_col=0.7):
 
     return df_cleaned
 
+
 def fill_with_mean(df, attributes):
     for attr in attributes:
         if attr in df.columns:
             df[attr] = df[attr].fillna(df[attr].mean())
     return df
 
+
 def fill_with_median(df, attributes):
     for attr in attributes:
         if attr in df.columns:
             df[attr] = df[attr].fillna(df[attr].median())
     return df
+
 
 def fill_with_mode(df, attributes):
     for attr in attributes:
@@ -81,19 +86,22 @@ def fill_with_mode(df, attributes):
                 df[attr] = df[attr].fillna(mode_value)
     return df
 
-def fill_with_interpolation(df, attributes, method='linear'):
+
+def fill_with_interpolation(df, attributes, method="linear"):
     # method: default is 'linear'. 'time', 'index', 'pad', 'nearest', 'quadratic', 'cubic', etc.
     for attr in attributes:
         if attr in df.columns:
             df[attr] = df[attr].interpolate(method=method)
     return df
 
+
 # Deprecated: replaced with interpolation to ensure no missing values
 def fill_with_NaN(df, attributes):
     for attr in attributes:
         if attr in df.columns:
-            df[attr] = df[attr].fillna('NaN')
+            df[attr] = df[attr].fillna("Unknown")
     return df
+
 
 def replace_placeholders_with_nan(df):
     """
@@ -107,6 +115,6 @@ def replace_placeholders_with_nan(df):
     """
     placeholders = ["NA", "NULL", "?", "", "NaN", "None", "N/A", "n/a", "nan", "none"]
     for col in df.columns:
-        if df[col].dtype == 'object':
+        if df[col].dtype == "object":
             df[col] = df[col].apply(lambda x: np.nan if str(x).lower() in placeholders else x)
     return df

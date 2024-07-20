@@ -24,7 +24,7 @@ def get_encode_col_by_encode_type(encode_type: str, encode_map: Dict) -> List[st
     return [col for col, type_ in encode_map.items() if type_ == encode_type]
 
 
-def encode_data(df: pd.DataFrame, encode_map: dict) -> pd.DataFrame:
+def encode_data(df: pd.DataFrame, encode_map: dict, enable_one_hot=False) -> pd.DataFrame:
     """
     Encode the DataFrame using the provided mappings.
 
@@ -35,7 +35,7 @@ def encode_data(df: pd.DataFrame, encode_map: dict) -> pd.DataFrame:
     encoded_df, _ = convert_to_numeric(
         df,
         convert_int_cols_list=get_encode_col_by_encode_type(ENCODE_TYPE["int"], encode_map),
-        one_hot_cols_list=get_encode_col_by_encode_type(ENCODE_TYPE["one_hot"], encode_map),
+        one_hot_cols_list=get_encode_col_by_encode_type(ENCODE_TYPE["one_hot"], encode_map) if enable_one_hot else [],
         drop_cols=get_encode_col_by_encode_type(ENCODE_TYPE["drop"], encode_map),
         convert_float_cols_list=get_encode_col_by_encode_type(ENCODE_TYPE["float"], encode_map),
     )

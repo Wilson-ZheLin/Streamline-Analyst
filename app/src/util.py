@@ -240,3 +240,11 @@ def count_unique(df, Y):
     Counts the number of unique values in a specified column of a DataFrame.
     """
     return df[Y].nunique()
+
+
+def get_numeric_columns(df):
+    """
+    Get the names of all numeric columns in a DataFrame.
+    """
+    numeric_columns = df.select_dtypes(include=[int, float]).columns.tolist()
+    return numeric_columns

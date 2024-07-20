@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
-API_KEY = os.getenv("OPENAI_KEY")
+API_KEY = os.getenv("API_KEY")
 
 # MAIN SECTION
 with st.container():

@@ -71,7 +71,8 @@ def regression_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
     analysis_params = json.loads(analysis_params)
 
     columns = analysis_params["attributes"]
-    # columns.append(analysis_params["target_variable"])
+    if analysis_params["target_variable"] not in columns:
+        columns.append(analysis_params["target_variable"])
     NEW_DF = DF[columns]
 
     st.divider()

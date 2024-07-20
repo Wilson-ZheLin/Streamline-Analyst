@@ -63,7 +63,7 @@ with st.container():
 
     # Start Analysis
     if st.session_state.button_clicked:
-        GPT_MODEL = 4 if SELECTED_MODEL == "GPT-4-Turbo" else "GPT-4o-mini"
+        GPT_MODEL = 4 if SELECTED_MODEL == "gpt-4o" else "gpt-4o-mini"
         with st.container():
             if "DF_uploaded" not in st.session_state:
                 st.error("File is empty!")

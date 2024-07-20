@@ -100,11 +100,12 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
     # }
     # new_df = pd.DataFrame([X_test_sample])
 
-    # if 'data_origin' not in st.session_state:
-    #     st.session_state.data_origin = DF
+    with st.spinner("AI is analyzing the data..."):
+        if 'data_origin' not in st.session_state:
+            st.session_state.data_origin = DF
     # st.dataframe(st.session_state.data_origin.head(20), width=1600)
     # st.dataframe(st.session_state.data_origin.describe(), width=1200)
-    attributes = st.session_state.data_origin.columns.tolist()
+        attributes = st.session_state.data_origin.columns.tolist()
     result_dataoverview = st.session_state.data_origin.describe()
     
     from langchain_core.prompts import PromptTemplate
@@ -138,7 +139,8 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
         openai_api_key=API_KEY,
         max_tokens=-1
     )
-    llm_chain = prompt | llm
+    llm_chain = prompt | llm    
+    
     
     # Select the target variable
     if 'target_selected' not in st.session_state:
@@ -181,7 +183,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
         #if "contain_null" not in st.session_state:
             #st.session_state.contain_null = contains_missing_value(st.session_state.data_origin)
 
-        if 'filled_df' not in st.session_state:
+        #if 'filled_df' not in st.session_state:
             # if st.session_state.contain_null:
             #     with st.status("Processing **missing values** in the data...", expanded=True) as status:
             #         st.write("Filtering out high-frequency missing rows and columns...")
@@ -203,10 +205,10 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
             #         file_name="imputed_missing_values.csv",
             #         mime='text/csv')
             # else:
-                st.session_state.filled_df = DF
-                st.success("No missing values detected. Processing skipped.")
-        else:
-            st.success("Missing value processing completed!")
+            # st.session_state.filled_df = DF
+            # st.success("No missing values detected. Processing skipped.")
+        #else:
+            #st.success("Missing value processing completed!")
             # if st.session_state.contain_null:
             #     st.download_button(
             #         label="Download Data with Missing Values Imputed",
@@ -240,10 +242,10 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                     #print(st.session_state.json_file)
                     data = pd.json_normalize(st.session_state.json_file)
                     data.to_csv('data.csv')
-                    new_encoded_df, new_mappings  = convert_to_numeric(data, convert_int_cols, one_hot_cols, drop_cols)
-                    print("Thông tin new_encoded_df: ", new_encoded_df)
-                    data = new_encoded_df
-                    print('Thong tin new_encoded_df:', data)
+                    # new_encoded_df, new_mappings  = convert_to_numeric(data, convert_int_cols, one_hot_cols, drop_cols)
+                    # print("Thông tin new_encoded_df: ", new_encoded_df)
+                    # data = new_encoded_df
+                    # print('Thong tin new_encoded_df:', data)
 
                     status.update(label='Data encoding completed!', state="complete", expanded=False)
                 st.download_button(
@@ -266,7 +268,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
         # Correlation Heatmap
         if 'df_cleaned1' not in st.session_state:
             st.session_state.df_cleaned1 = DF
-            st.session_state.df_cleaned1_question = new_encoded_df
+            #st.session_state.df_cleaned1_question = new_encoded_df
         #st.subheader('Correlation Between Attributes')
         #st.plotly_chart(correlation_matrix_plotly(st.session_state.df_cleaned1))
 
@@ -274,7 +276,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
         st.subheader('Remove Duplicate Entities')
         if 'df_cleaned2' not in st.session_state:
             st.session_state.df_cleaned2 = remove_duplicates(st.session_state.df_cleaned1)
-            st.session_state.df_cleaned1_question = new_encoded_df
+            #st.session_state.df_cleaned1_question = new_encoded_df
             # DF = remove_duplicates(DF)
         st.info("Duplicate rows removed.")
         
@@ -306,12 +308,14 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
             st.session_state['model_trained'] = False
         if 'is_binary' not in st.session_state:
             st.session_state['is_binary'] = count_unique(st.session_state.df_pca, st.session_state.selected_Y) == 2
+            #st.session_state['is_binary'] = count_unique(st.session_state.df_cleaned2, st.session_state.selected_Y) == 2
 
         # AI decide the testing set percentage
         if 'test_percentage' not in st.session_state:
             with st.spinner("Deciding testing set percentage based on data..."):
                 st.session_state.test_percentage = int(decide_test_ratio(st.session_state.df_pca.shape, GPT_MODEL, API_KEY) * 100)
-
+                #st.session_state.test_percentage = int(decide_test_ratio(st.session_state.df_cleaned2.shape, GPT_MODEL, API_KEY) * 100)
+                
         splitting_column, balance_column = st.columns(2)
         with splitting_column:
             st.subheader('Data Splitting')
@@ -331,6 +335,8 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
             with st.container():
                 st.header("Modeling")
                 X, Y = select_Y(st.session_state.df_pca, st.session_state.selected_Y)
+
+                #X, Y = select_Y(st.session_state.df_cleaned2, st.session_state.selected_Y)
                 #X_question, Y_question = select_Y(st.session_state.df_pca_question, st.session_state.selected_Y)
                 #X_question, Y_question = select_Y(st.session_state.df_cleaned1_question, st.session_state.selected_Y)
                 #print('X la ', X)
@@ -340,6 +346,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
                     print("Balance ====================")
                     with st.spinner("AI is deciding the balance strategy for the data..."):
                         shape_info_balance, description_info_balance, balance_info_balance = get_balance_info(st.session_state.df_pca, st.session_state.selected_Y)
+                        #shape_info_balance, description_info_balance, balance_info_balance = get_balance_info(st.session_state.df_cleaned2, st.session_state.selected_Y)
                         st.session_state.balance_method = int(decide_balance(shape_info_balance, description_info_balance, balance_info_balance, GPT_MODEL, API_KEY))
                         X_train_res, Y_train_res = check_and_balance(X, Y, method = st.session_state.balance_method)
                         X_train_res.to_csv('X_train_res.csv')

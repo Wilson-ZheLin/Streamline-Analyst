@@ -137,28 +137,28 @@ def preprocess_pipeline(DF, API_KEY, GPT_MODEL, QUESTION=""):
         mime="text/csv",
     )
 
-    st.subheader("Feature Selection")
-    st.caption("*For considerations of processing time, **PCA** has been included in the current pipeline.")  # fmt: skip
+    #st.subheader("Feature Selection")
+    #st.caption("*For considerations of processing time, **PCA** has been included in the current pipeline.")  # fmt: skip
 
-    st.session_state.pca, n_components = decide_pca(filled_df)
-    if st.session_state.pca:
-        with st.status("Processing **PCA** ...", expanded=True) as status:
-            st.info("Correlation Between Attributes Before PCA")
-            st.plotly_chart(correlation_matrix_plotly(data[get_numeric_columns(data)]))
-            st.write("Performing PCA...")
-            pca_data = perform_pca(data, n_components)
-            status.update(label="PCA completed!", state="complete", expanded=False)
-            st.dataframe(pca_data.head(10), width=1200)
-            st.info("Correlation Between Attributes After PCA")
-            st.plotly_chart(correlation_matrix_plotly(pca_data))
-        st.download_button(
-            label="Download Data after PCA",
-            data=pca_data.to_csv(index=False).encode("utf-8"),
-            file_name="pca_data.csv",
-            mime="text/csv",
-        )
-    else:
-        st.info("No PCA needed!")
+    # st.session_state.pca, n_components = decide_pca(filled_df)
+    # if st.session_state.pca:
+    #     with st.status("Processing **PCA** ...", expanded=True) as status:
+    #         st.info("Correlation Between Attributes Before PCA")
+    #         st.plotly_chart(correlation_matrix_plotly(data[get_numeric_columns(data)]))
+    #         st.write("Performing PCA...")
+    #         pca_data = perform_pca(data, n_components)
+    #         status.update(label="PCA completed!", state="complete", expanded=False)
+    #         st.dataframe(pca_data.head(10), width=1200)
+    #         st.info("Correlation Between Attributes After PCA")
+    #         st.plotly_chart(correlation_matrix_plotly(pca_data))
+    #     st.download_button(
+    #         label="Download Data after PCA",
+    #         data=pca_data.to_csv(index=False).encode("utf-8"),
+    #         file_name="pca_data.csv",
+    #         mime="text/csv",
+    #     )
+    # else:
+    #     st.info("No PCA needed!")
 
     st.success("Data preprocessing completed!")
     st.session_state.data_preprocessed = data

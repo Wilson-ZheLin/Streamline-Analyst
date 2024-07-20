@@ -157,9 +157,9 @@ def data_visualization(DF, API_KEY, GPT_MODEL, question=mock_question):
         DF = preprocessing(DF)
 
     # Data Overview
-    st.subheader('Tổng quan dữ liệu')
-    if 'data_origin' not in st.session_state:
-        st.session_state.data_origin = DF
+    # st.subheader('Tổng quan dữ liệu')
+    # if 'data_origin' not in st.session_state:
+    #     st.session_state.data_origin = DF
 
     # st.dataframe(st.session_state.data_origin.describe(), width=1200)
     st.dataframe(st.session_state.data_origin.head())

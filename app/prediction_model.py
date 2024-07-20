@@ -85,7 +85,7 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
     DF = DF.drop("Ngày", axis=1)
     THE_PROMPT = QUESTION
     st.divider()
-    st.subheader('Data Overview')
+    st.subheader('Prediction model')
     # X_test_sample = {
     #         "Temperature": 16,
     #         "Humidity": 73,
@@ -100,10 +100,10 @@ def prediction_model_pipeline(DF, API_KEY, GPT_MODEL, QUESTION):
     # }
     # new_df = pd.DataFrame([X_test_sample])
 
-    if 'data_origin' not in st.session_state:
-        st.session_state.data_origin = DF
-    st.dataframe(st.session_state.data_origin.head(20), width=1600)
-    st.dataframe(st.session_state.data_origin.describe(), width=1200)
+    # if 'data_origin' not in st.session_state:
+    #     st.session_state.data_origin = DF
+    # st.dataframe(st.session_state.data_origin.head(20), width=1600)
+    # st.dataframe(st.session_state.data_origin.describe(), width=1200)
     attributes = st.session_state.data_origin.columns.tolist()
     result_dataoverview = st.session_state.data_origin.describe()
     

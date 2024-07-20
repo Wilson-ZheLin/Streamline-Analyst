@@ -10,7 +10,14 @@ null_attribute_template: |
   {types_info}
   Statistics for these properties in csv format:
   {description_info}
-  Please help me decide how to supplement null values for each attribute based on content, statistics and semantics. The mean filling is represented by 1, the median filling is represented by 2, the mode filling is represented by 3, the introduction of a new category to represent the unknown is represented by 4, and the interpolation filling is represented by 5. Only the data is returned in json format without any other explanation or content. Sample response: {{"grade":2,"annual_income":2,"temperature":1,"fault_type":3,"country":4,"weight":1,"stock price":5}}
+  Please help me decide how to supplement null values for each attribute based on content, statistics and semantics. 
+  The mean filling is represented by 1, 
+  the median filling is represented by 2, 
+  the mode filling is represented by 3, 
+  the introduction of a new category to represent the unknown is represented by 4, 
+  and the interpolation filling is represented by 5. 
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{"grade":2,"annual_income":2,"temperature":1,"fault_type":3,"country":4,"weight":1,"stock price":5}}
 decide_model_template: |
   You are a data analyst. The shape of my data frame is {shape_info}. The head(5) of the data frame is:
   {head_info}

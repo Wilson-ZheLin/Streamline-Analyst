@@ -18,7 +18,7 @@ load_dotenv()
 
 st.set_page_config(page_title="Streamline Analyst", page_icon=":rocket:", layout="wide")
 #API_KEY = os.getenv("API_KEY")
-API_KEY = "sk-None-k1CYc0q6WDPvx3l4llXTT3BlbkFJAzirGlBJeuThikbBNik4"
+API_KEY = ""
 
 # MAIN SECTION
 with st.container():

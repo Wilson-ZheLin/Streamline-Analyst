@@ -4,6 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from src.preprocess import convert_to_integer
 
+
 def decide_pca(df, cumulative_variance_threshold=0.95, min_dim_reduction_ratio=0.1):
     """
     Determines whether PCA should be performed based on cumulative variance threshold and dimension reduction ratio.
@@ -41,7 +42,8 @@ def decide_pca(df, cumulative_variance_threshold=0.95, min_dim_reduction_ratio=0
     perform_pca = dim_reduction_ratio >= min_dim_reduction_ratio
     return perform_pca, n_components
 
-def perform_pca(df, n_components, Y_name):
+
+def perform_pca(df, n_components, Y_name=None):
     """
     Performs PCA on the dataset, optionally excluding a target column, and standardizes the data.
 
@@ -60,7 +62,7 @@ def perform_pca(df, n_components, Y_name):
         drop_columns.append(Y_name)
 
     # Remove non-numeric columns and the target column
-    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors='ignore')
+    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors="ignore")
 
     # Standardizing the Data
     scaler = StandardScaler()
@@ -69,9 +71,9 @@ def perform_pca(df, n_components, Y_name):
     # Applying PCA
     pca = PCA(n_components=n_components)
     principal_components = pca.fit_transform(scaled_data)
-    
+
     # Create a new DataFrame with principal components
-    columns = [f'PC{i+1}' for i in range(n_components)]
+    columns = [f"PC{i+1}" for i in range(n_components)]
     pca_df = pd.DataFrame(data=principal_components, columns=columns)
 
     # Reattach the target column
@@ -80,6 +82,7 @@ def perform_pca(df, n_components, Y_name):
         pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
 
     return pca_df
+
 
 def perform_PCA_for_clustering(df, n_components):
     """
@@ -95,12 +98,13 @@ def perform_PCA_for_clustering(df, n_components):
     # Applying PCA
     pca = PCA(n_components=n_components)
     principal_components = pca.fit_transform(df)
-    
+
     # Create a new DataFrame with principal components
-    columns = [f'PC{i+1}' for i in range(n_components)]
+    columns = [f"PC{i+1}" for i in range(n_components)]
     pca_df = pd.DataFrame(data=principal_components, columns=columns)
-    
+
     return pca_df
+
 
 def perform_PCA_for_regression(df, n_components, Y_name):
     """
@@ -122,19 +126,19 @@ def perform_PCA_for_regression(df, n_components, Y_name):
         drop_columns.append(Y_name)
 
     # Remove non-numeric columns and the target column
-    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors='ignore')
+    numeric_df = df.select_dtypes(include=[np.number]).drop(columns=drop_columns, errors="ignore")
 
     # Applying PCA
     pca = PCA(n_components=n_components)
     principal_components = pca.fit_transform(numeric_df)
-    
+
     # Create a new DataFrame with principal components
-    columns = [f'PC{i+1}' for i in range(n_components)]
+    columns = [f"PC{i+1}" for i in range(n_components)]
     pca_df = pd.DataFrame(data=principal_components, columns=columns)
 
     # Reattach the target column
     if Y_name:
         pca_df[Y_name] = target_data.reset_index(drop=True)
         pca_df, _ = convert_to_integer(pca_df, columns_to_convert=[Y_name])
-    
+
     return pca_df

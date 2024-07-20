@@ -56,3 +56,52 @@ pipeline_selection_template: |
   You have to answer a question about the provided dataframe. The question is:
   {question}
   Determine the data analysis pipeline that most likely solves the problem based on the data information provided. The pipeline options are represented by 1: Data visualization pipeline, 2: Classification pipeline, 3: Regression pipeline, 4: Clustering pipeline. Only the data is returned in json format without any other explanation or content. Sample response: {{"pipeline":4}}
+decide_target_attribute_template_classification: |
+  You are a data analyst. 
+  You are trying to find out which attribute is the target attribute from the data frame based on the question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(10) of the data frame is:
+  {head_info}
+  Determine the target attribute based on the question and data for the prediction in classification.
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{"target":"species"}}
+  If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
+explain_for_question_template_classification: |
+  You are a data analyst. 
+  You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(20) of the data frame is:
+  {head_info}
+  Only return the answer in Vietnamese.
+export_JSON_for_question_template_classification: |
+  You are a data analyst. 
+  You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(20) of the data frame is:
+  {head_info}
+  Determine JSON response based on the question and attributes of data for the prediction in classification.
+  If any attribute from the dataframe is missing in the question, just assign it with any random value from the value in the head(20) of the data frame is:
+  {head_info}
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{
+    "Temperature": 17,
+    "Humidity":0,
+    "Wind Speed": 0,
+    "Precipitation (%)": 0,
+    "Cloud Cover":"",
+    "Atmospheric Pressure":0,
+    "UV Index": 2,
+    "Season": "Winter",
+    "Visibility (km)": 0,
+    "Location": "inland" 
+  }}
+  If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}

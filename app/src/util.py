@@ -102,7 +102,7 @@ def contain_null_attributes_info(df):
     if not attributes: return [], -1, -1
 
     description_info = df[attributes].describe(percentiles=[.5])
-    description_info = description_info.loc[['count', 'mean', '50%', 'std']].round(2).to_csv()
+    #description_info = description_info.loc[['count', 'mean', '50%', 'std']].round(2).to_csv()
 
     dtypes_df = df[attributes].dtypes
     types_info = "\n".join([f"{index}:{dtype}" for index, dtype in dtypes_df.items()])
@@ -240,3 +240,11 @@ def count_unique(df, Y):
     Counts the number of unique values in a specified column of a DataFrame.
     """
     return df[Y].nunique()
+
+
+def get_numeric_columns(df):
+    """
+    Get the names of all numeric columns in a DataFrame.
+    """
+    numeric_columns = df.select_dtypes(include=[int, float]).columns.tolist()
+    return numeric_columns

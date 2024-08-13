@@ -5,3 +5,9 @@
 *.ipynb_checkpoints
 data/
 test.py
+.venv
+.history
+
+.env
+.vscode
+.conda

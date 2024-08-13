@@ -55,6 +55,14 @@ def count_Y(df, Y_name):
                      color_discrete_sequence=px.colors.sequential.Cividis_r)
         return fig
 
+def get_confusion_metrix(model_name, model, X_test, Y_test):
+    """
+    Trả ra kết quả ma trận nhầm lẫn cho precision_model
+    """
+    Y_pred = model.predict(X_test)
+    matrix = confusion_matrix(Y_test, Y_pred)
+    return matrix
+
 def density_plot(df, column_name):
     """
     Density plot of the distribution of a single attribute.

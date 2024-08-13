@@ -71,6 +71,8 @@ def AdaBoost_train(X_train, Y_train, model_params=None):
 def XGBoost_train(X_train, Y_train, model_params=None):
     if model_params is None: model_params = {}
     xgb = XGBClassifier(**model_params)
+    print('X train la', X_train)
+    print('Y train la', Y_train)
     xgb.fit(X_train, Y_train)
     return xgb
 

@@ -5,16 +5,19 @@ import re
 import streamlit as st
 from langchain.prompts import PromptTemplate
 from langchain.schema import HumanMessage
-from langchain.chat_models import ChatOpenAI
 
-config_path = os.path.join(os.path.dirname(__file__), 'config', 'config.yaml')
-with open(config_path, 'r') as file:
+# from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
+
+config_path = os.path.join(os.path.dirname(__file__), "config", "config.yaml")
+with open(config_path, "rb") as file:
     config = yaml.safe_load(file)
 model4_name = config["model4_name"]
 model3_name = config["model3_name"]
 api_key = config["openai_api_key"]
 
-def decide_encode_type(attributes, data_frame_head, model_type = 4, user_api_key = None):
+
+def decide_encode_type(attributes, data_frame_head, model_type=4, user_api_key=None):
     """
     Decides the encoding type for given attributes using a language model via the OpenAI API.
 
@@ -34,22 +37,25 @@ def decide_encode_type(attributes, data_frame_head, model_type = 4, user_api_key
         model_name = model4_name if model_type == 4 else model3_name
         user_api_key = api_key if user_api_key is None else user_api_key
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
-        
+
         template = config["numeric_attribute_template"]
         prompt_template = PromptTemplate(input_variables=["attributes", "data_frame_head"], template=template)
         summary_prompt = prompt_template.format(attributes=attributes, data_frame_head=data_frame_head)
-        
+
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_fill_null(attributes, types_info, description_info, model_type = 4, user_api_key = None):
+
+def decide_fill_null(attributes, types_info, description_info, model_type=4, user_api_key=None):
     """
     Decides the best encoding type for given attributes using an AI model via OpenAI API.
 
@@ -69,22 +75,29 @@ def decide_fill_null(attributes, types_info, description_info, model_type = 4, u
         model_name = model4_name if model_type == 4 else model3_name
         user_api_key = api_key if user_api_key is None else user_api_key
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
-        
+
         template = config["null_attribute_template"]
-        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "description_info"], template=template)
-        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, description_info=description_info)
-        
+        prompt_template = PromptTemplate(
+            input_variables=["attributes", "types_info", "description_info"], template=template
+        )
+        summary_prompt = prompt_template.format(
+            attributes=attributes, types_info=types_info, description_info=description_info
+        )
+
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_model(shape_info, head_info, nunique_info, description_info, model_type = 4, user_api_key = None):
+
+def decide_model(shape_info, head_info, nunique_info, description_info, model_type=4, user_api_key=None):
     """
     Decides the most suitable machine learning model based on dataset characteristics.
 
@@ -108,20 +121,27 @@ def decide_model(shape_info, head_info, nunique_info, description_info, model_ty
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_model_template"]
-        prompt_template = PromptTemplate(input_variables=["shape_info", "head_info", "nunique_info", "description_info"], template=template)
-        summary_prompt = prompt_template.format(shape_info=shape_info, head_info=head_info, nunique_info=nunique_info, description_info=description_info)
+        prompt_template = PromptTemplate(
+            input_variables=["shape_info", "head_info", "nunique_info", "description_info"], template=template
+        )
+        summary_prompt = prompt_template.format(
+            shape_info=shape_info, head_info=head_info, nunique_info=nunique_info, description_info=description_info
+        )
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_cluster_model(shape_info, description_info, cluster_info, model_type = 4, user_api_key = None):
+
+def decide_cluster_model(shape_info, description_info, cluster_info, model_type=4, user_api_key=None):
     """
     Determines the appropriate clustering model based on dataset characteristics.
 
@@ -144,20 +164,27 @@ def decide_cluster_model(shape_info, description_info, cluster_info, model_type 
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_clustering_model_template"]
-        prompt_template = PromptTemplate(input_variables=["shape_info", "description_info", "cluster_info"], template=template)
-        summary_prompt = prompt_template.format(shape_info=shape_info, description_info=description_info, cluster_info=cluster_info)
+        prompt_template = PromptTemplate(
+            input_variables=["shape_info", "description_info", "cluster_info"], template=template
+        )
+        summary_prompt = prompt_template.format(
+            shape_info=shape_info, description_info=description_info, cluster_info=cluster_info
+        )
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_regression_model(shape_info, description_info, Y_name, model_type = 4, user_api_key = None):
+
+def decide_regression_model(shape_info, description_info, Y_name, model_type=4, user_api_key=None):
     """
     Determines the appropriate regression model based on dataset characteristics and the target variable.
 
@@ -180,20 +207,25 @@ def decide_regression_model(shape_info, description_info, Y_name, model_type = 4
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_regression_model_template"]
-        prompt_template = PromptTemplate(input_variables=["shape_info", "description_info", "Y_name"], template=template)
+        prompt_template = PromptTemplate(
+            input_variables=["shape_info", "description_info", "Y_name"], template=template
+        )
         summary_prompt = prompt_template.format(shape_info=shape_info, description_info=description_info, Y_name=Y_name)
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_target_attribute(attributes, types_info, head_info, model_type = 4, user_api_key = None):
+
+def decide_target_attribute(attributes, types_info, head_info, model_type=4, user_api_key=None):
     """
     Determines the target attribute for modeling based on dataset attributes and characteristics.
 
@@ -220,16 +252,19 @@ def decide_target_attribute(attributes, types_info, head_info, model_type = 4, u
         summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info)
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)["target"]
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_test_ratio(shape_info, model_type = 4, user_api_key = None):
+
+def decide_test_ratio(shape_info, model_type=4, user_api_key=None):
     """
     Determines the appropriate train-test split ratio based on dataset characteristics.
 
@@ -254,16 +289,19 @@ def decide_test_ratio(shape_info, model_type = 4, user_api_key = None):
         summary_prompt = prompt_template.format(shape_info=shape_info)
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
-        if '```json' in llm_answer.content:
-            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
-            if match: json_str = match.group(1)
-        else: json_str = llm_answer.content
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
         return json.loads(json_str)["test_ratio"]
     except Exception as e:
         st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()
 
-def decide_balance(shape_info, description_info, balance_info, model_type = 4, user_api_key = None):
+
+def decide_balance(shape_info, description_info, balance_info, model_type=4, user_api_key=None):
     """
     Determines the appropriate method to balance the dataset based on its characteristics.
 
@@ -286,15 +324,131 @@ def decide_balance(shape_info, description_info, balance_info, model_type = 4, u
         llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
 
         template = config["decide_balance_template"]
-        prompt_template = PromptTemplate(input_variables=["shape_info", "description_info", "balance_info"], template=template)
-        summary_prompt = prompt_template.format(shape_info=shape_info, description_info=description_info, balance_info=balance_info)
+        prompt_template = PromptTemplate(
+            input_variables=["shape_info", "description_info", "balance_info"], template=template
+        )
+        summary_prompt = prompt_template.format(
+            shape_info=shape_info, description_info=description_info, balance_info=balance_info
+        )
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
+        return json.loads(json_str)["method"]
+    except Exception as e:
+        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
+
+def select_pipeline(shape_info, description_info, head_info, question, model_type=4, user_api_key=None):
+    """
+    Selects the appropriate pipeline based on dataset characteristics and a user question.
+
+    Parameters:
+    - shape_info: Information about the dataset shape.
+    - description_info: Descriptive statistics or information about the dataset.
+    - head_info: A snapshot of the dataset's first few rows.
+    - question: The user's question or request.
+    - model_type (int, optional): The model type to use for decision making (default 4).
+    - user_api_key (str, optional): The user's API key for OpenAI.
+
+    Returns:
+    - The recommended pipeline based on the user question. Please refer to prompt templates in config.py for details.
+
+    Raises:
+    - Exception: If unable to access the OpenAI API or another error occurs.
+    """
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+
+        template = config["pipeline_selection_template"]
+        prompt_template = PromptTemplate(
+            input_variables=["shape_info", "description_info", "head_info", "question"], template=template
+        )
+        summary_prompt = prompt_template.format(
+            shape_info=shape_info, description_info=description_info, head_info=head_info, question=question
+        )
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if "```json" in llm_answer.content:
+            match = re.search(r"```json\n(.*?)```", llm_answer.content, re.DOTALL)
+            if match:
+                json_str = match.group(1)
+        else:
+            json_str = llm_answer.content
+        return json.loads(json_str)["pipeline"]
+    except Exception as e:
+        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
+def decide_target_attribute_classi(attributes, types_info, head_info, model_type = 4, user_api_key = None, question_user=None):
+    """
+    Determines the target attribute for modeling based on dataset attributes and characteristics.
+
+    Parameters:
+    - attributes: A list of dataset attributes.
+    - types_info: Information about the data types of the attributes.
+    - head_info: A snapshot of the dataset's first few rows.
+    - model_type (int, optional): The model type to use for decision making (default 4).
+    - user_api_key (str, optional): The user's API key for OpenAI.
+    - question_user: The question that the user wants to ask the model.
+
+    Returns:
+    - The name of the recommended target attribute. Please refer to prompt templates in config.py for details.
+
+    Raises:
+    - Exception: If unable to access the OpenAI API or another error occurs.
+    """
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+        #print('Ket qua dau vao: ', attributes, types_info, head_info, question_user)
+        template = config["decide_target_attribute_template_classification"]
+
+        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info","question_user"], template=template)
+        print('Ket qua prompt template la', prompt_template)
+
+        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info,question_user=question_user)
 
         llm_answer = llm([HumanMessage(content=summary_prompt)])
         if '```json' in llm_answer.content:
             match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
             if match: json_str = match.group(1)
         else: json_str = llm_answer.content
-        return json.loads(json_str)["method"]
+        #print('Ket qua phan tich', json.loads(json_str)["target"])
+        return json.loads(json_str)["target"]
     except Exception as e:
-        st.error("Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.error("🚨 Cannot access the OpenAI API. Please check your API key or network connection.")
+        st.stop()
+
+def convert_question_to_DF(attributes, types_info, head_info, model_type = 4, user_api_key = None, question_user=None):
+    import pandas as pd
+    try:
+        model_name = model4_name if model_type == 4 else model3_name
+        user_api_key = api_key if user_api_key is None else user_api_key
+        llm = ChatOpenAI(model_name=model_name, openai_api_key=user_api_key, temperature=0)
+        #print('Ket qua dau vao: ', attributes, types_info, head_info, question_user)
+        template = config["export_JSON_for_question_template_classification"]
+
+        prompt_template = PromptTemplate(input_variables=["attributes", "types_info", "head_info","question_user"], template=template)
+        print('Ket qua prompt template la', prompt_template)
+
+        summary_prompt = prompt_template.format(attributes=attributes, types_info=types_info, head_info=head_info,question_user=question_user)
+
+        llm_answer = llm([HumanMessage(content=summary_prompt)])
+        if '```json' in llm_answer.content:
+            match = re.search(r'```json\n(.*?)```', llm_answer.content, re.DOTALL)
+            if match: json_str = match.group(1)
+        else: json_str = llm_answer.content
+        print('Data point của tôi là: ', json_str)
+        return json.loads(json_str)
+    except Exception as e:
+        st.error("🚨 Cannot access the OpenAI API. Please check your API key or network connection.")
         st.stop()

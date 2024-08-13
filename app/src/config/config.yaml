@@ -1,16 +1,23 @@
 openai_api_key: "YOUR_OPENAI_API_KEY"
-model4_name: "gpt-4-1106-preview"
-model3_name: "gpt-3.5-turbo-1106"
+model4_name: "gpt-4o"
+model3_name: "gpt-4o-mini"
 numeric_attribute_template: |
   You are a data analyst. You are cleaning the data and processing the attributes in the data that are not numeric. The columns to be processed include: {attributes}. The first 20 items of these data are as follows:
   {data_frame_head}
-  Please help me decide whether each attribute should be processed as integer mapping or one-hot encoding based on content and semantics. If there's an attribute containing long text, consider dropping it. Integer mapping is represented by 1, one-hot encoding is represented by 2, and dropping the attribute is represented by 3. Only the data is returned in json format without any other explanation or content. Sample response: {{"color":2,"size":1,"country":2,"brand":2,"gender":1,"comments":3}}
+  Please help me decide whether each attribute should be processed as integer mapping or float mapping or one-hot encoding based on content and semantics. If there's an attribute containing long text, consider dropping it. Integer mapping is represented by 1, float mapping is represented by 2, one-hot encoding is represented by 3, and dropping the attribute is represented by 4. Only the data is returned in json format without any other explanation or content. Sample response: {{"color":3,"price":2,"size":1,"country":3,"brand":3,"address":4,"state":3,"gender":1,"comments":4}}
 null_attribute_template: |
   You are a data analyst. You are preprocessing the attributes in the data that contain null values. The columns to be processed include: {attributes}. The types of these attributes are:
   {types_info}
   Statistics for these properties in csv format:
   {description_info}
-  Please help me decide how to supplement null values for each attribute based on content, statistics and semantics. The mean filling is represented by 1, the median filling is represented by 2, the mode filling is represented by 3, the introduction of a new category to represent the unknown is represented by 4, and the interpolation filling is represented by 5. Only the data is returned in json format without any other explanation or content. Sample response: {{"grade":2,"annual_income":2,"temperature":1,"fault_type":3,"country":4,"weight":1,"stock price":5}}
+  Please help me decide how to supplement null values for each attribute based on content, statistics and semantics. 
+  The mean filling is represented by 1, 
+  the median filling is represented by 2, 
+  the mode filling is represented by 3, 
+  the introduction of a new category to represent the unknown is represented by 4, 
+  and the interpolation filling is represented by 5. 
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{"grade":2,"annual_income":2,"temperature":1,"fault_type":3,"country":4,"weight":1,"stock price":5}}
 decide_model_template: |
   You are a data analyst. The shape of my data frame is {shape_info}. The head(5) of the data frame is:
   {head_info}
@@ -41,3 +48,60 @@ decide_balance_template: |
   {description_info}
   The number of each value of the target attribute is: {balance_info}
   Determine the balance strategy based on the data information provided. The RandomOverSampler is represented by 1, the SMOTE is represented by 2, the ADASYN is represented by 3, and do not balance is represented by 4. Only the data is returned in json format without any other explanation or content. Sample response: {{"method":2}}
+pipeline_selection_template: |
+  You are a data analyst. You have a preprocessed dataframe with shape {shape_info}. The description of the data frame is:
+  {description_info}
+  The head(10) of the data frame is:
+  {head_info}
+  You have to answer a question about the provided dataframe. The question is:
+  {question}
+  Determine the data analysis pipeline that most likely solves the problem based on the data information provided. The pipeline options are represented by 1: Data visualization pipeline, 2: Classification pipeline, 3: Regression pipeline, 4: Clustering pipeline. Only the data is returned in json format without any other explanation or content. Sample response: {{"pipeline":4}}
+decide_target_attribute_template_classification: |
+  You are a data analyst. 
+  You are trying to find out which attribute is the target attribute from the data frame based on the question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(10) of the data frame is:
+  {head_info}
+  Determine the target attribute based on the question and data for the prediction in classification.
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{"target":"species"}}
+  If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
+explain_for_question_template_classification: |
+  You are a data analyst. 
+  You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(20) of the data frame is:
+  {head_info}
+  Only return the answer in Vietnamese.
+export_JSON_for_question_template_classification: |
+  You are a data analyst. 
+  You are trying to extract a JSON data point which each key-value pair is from the data frame based on the user's question and dataframe.
+  The attributes are {attributes}. The types of these attributes are:
+  {types_info}
+  The question of user is:
+  {question_user}
+  The head(20) of the data frame is:
+  {head_info}
+  Determine JSON response based on the question and attributes of data for the prediction in classification.
+  If any attribute from the dataframe is missing in the question, just assign it with any random value from the value in the head(20) of the data frame is:
+  {head_info}
+  Only the data is returned in json format without any other explanation or content. 
+  Sample response: {{
+    "Temperature": 17,
+    "Humidity":0,
+    "Wind Speed": 0,
+    "Precipitation (%)": 0,
+    "Cloud Cover":"",
+    "Atmospheric Pressure":0,
+    "UV Index": 2,
+    "Season": "Winter",
+    "Visibility (km)": 0,
+    "Location": "inland" 
+  }}
+  If the provided data is not sufficient to determine the target, only return the data in json format {{"target":-1}}
